@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuratore Rete 21 — VP110</title>
+<meta name="description" content="Configuratore semplificato con stima consumi, proposta impianto e cruscotto del punto di pareggio della rata.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --verde:#b5bb00;--verde-dark:#9aa000;--verde-pill:#c8cf18;
+    --grigio-scuro:#414745;--grigio-medio:#6b7270;
+    --grigio-bg:#f5f5f3;--grigio-bordo:#dcddd9;
+    --bianco:#ffffff;--rosso:#c0392b;--giallo-warn:#f39c12;
+    --shadow:0 2px 8px rgba(65,71,69,.08);
+    --shadow-hover:0 6px 20px rgba(65,71,69,.14);
+  }
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Montserrat',Helvetica,Arial,sans-serif;color:var(--grigio-scuro);background:var(--grigio-bg);line-height:1.6;font-size:15px}
+  .topbar{background:var(--grigio-scuro);color:#fff;font-size:13px;padding:10px 28px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .topbar strong{letter-spacing:.4px}
+  .main-header{background:var(--bianco);border-bottom:4px solid var(--verde);padding:20px 28px;box-shadow:var(--shadow)}
+  .main-header .inner{max-width:1320px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap}
+  .brand{display:inline-block;padding:8px 12px;border-radius:999px;background:#f7f9e6;color:#414745;font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .main-header h1{margin:0;font-size:clamp(28px,4vw,42px);line-height:1.1;font-weight:800;letter-spacing:-.8px}
+  .main-header p{margin:8px 0 0;max-width:820px;color:var(--grigio-medio)}
+  .wrap{max-width:1320px;margin:0 auto;padding:26px 22px}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:22px;align-items:start}
+  .stack{display:grid;gap:18px}
+  .card{background:var(--bianco);border:1px solid var(--grigio-bordo);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+  .card-head{padding:18px 22px;border-bottom:1px solid var(--grigio-bordo);background:linear-gradient(180deg,#fff 0%,#fcfcfa 100%)}
+  .step{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .step-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--verde);color:#fff;font-size:15px;font-weight:800;flex:0 0 auto}
+  .card-head h2{margin:0;font-size:24px;letter-spacing:-.4px}
+  .card-head p{margin:4px 0 0;color:var(--grigio-medio)}
+  .card-body{padding:22px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .field{display:grid;gap:8px}
+  label{font-size:13px;font-weight:700;color:var(--grigio-scuro);text-transform:uppercase;letter-spacing:.35px}
+  .hint{font-size:12px;color:var(--grigio-medio);line-height:1.45}
+  .seg{display:flex;gap:10px;flex-wrap:wrap}
+  .seg button{appearance:none;border:2px solid var(--grigio-bordo);background:#fff;color:var(--grigio-scuro);border-radius:999px;padding:11px 16px;font-size:13px;font-weight:800;cursor:pointer;transition:.2s}
+  .seg button.active{border-color:var(--verde);background:var(--verde);color:#fff}
+  .range-wrap{display:grid;gap:8px}
+  .range-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .range-value{font-weight:900;color:var(--verde-dark);font-size:30px;line-height:1}
+  .range-value small{font-size:13px;font-weight:700;color:var(--grigio-medio)}
+  input[type=range]{width:100%;accent-color:var(--verde);cursor:pointer}
+  .info-badges{display:flex;flex-wrap:wrap;gap:10px}
+  .info-badge{background:#f7f9e6;border:1px solid #e5e8bd;border-radius:12px;padding:10px 12px;color:var(--verde-dark);font-size:13px;font-weight:700}
+  .included-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+  .included{border:1px solid var(--grigio-bordo);border-radius:14px;padding:16px;background:#fafbf9}
+  .included strong{display:block;margin-bottom:6px;font-size:15px}
+  .included span{display:block;font-size:13px;color:var(--grigio-medio)}
+  .toggle-list{display:grid;gap:12px}
+  .toggle{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 15px;border:2px solid var(--grigio-bordo);border-radius:14px;background:#fff;cursor:pointer;transition:.2s}
+  .toggle.on{border-color:#d9dc80;background:#fbfcf0}
+  .toggle-text strong{display:block;font-size:14px;margin-bottom:4px}
+  .toggle-text span{display:block;font-size:12px;color:var(--grigio-medio);line-height:1.4}
+  .switch{position:relative;width:54px;height:30px;border-radius:999px;background:#d8dcd8;flex:0 0 auto;transition:.2s}
+  .switch::before{content:"";position:absolute;top:3px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.12);transition:.2s}
+  .toggle.on .switch{background:var(--verde-pill)}
+  .toggle.on .switch::before{left:26px}
+  .note{padding:14px 16px;border-radius:12px;background:#f7f9e6;border-left:4px solid var(--verde);color:#456351}
+  .kpi{background:#fff;border:1px solid var(--grigio-bordo);border-radius:14px;padding:18px}
+  .kpi .val{font-size:31px;font-weight:900;color:var(--verde-dark);line-height:1.05}
+  .kpi .lbl{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--grigio-scuro);margin-top:8px}
+  .kpi .txt{font-size:12px;color:var(--grigio-medio);margin-top:4px;line-height:1.45}
+  .dashboard{position:sticky;top:18px;display:grid;gap:16px}
+  .dash-card{background:#fff;border:1px solid var(--grigio-bordo);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+  .dash-top{background:linear-gradient(160deg,#2a8a6e 0%,#1e6b55 100%);padding:18px;color:#fff}
+  .dash-top h3{margin:0;font-size:18px;line-height:1.25;font-weight:800}
+  .dash-body{padding:18px}
+  .zero-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .zero-unit{background:#f5faf6;border:2px solid #d3e8da;border-radius:16px;padding:14px;text-align:center}
+  .zero-num{font-size:42px;line-height:1;font-weight:900;color:var(--verde-dark)}
+  .zero-lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.45px;color:var(--grigio-scuro);margin-top:6px}
+  .zero-total{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f5f5f3;font-size:13px;color:var(--grigio-scuro);font-weight:700;text-align:center}
+  .zero-badge{margin-top:14px;padding:16px;border-radius:18px;background:var(--verde);color:#fff;text-align:center;font-weight:900;font-size:24px;line-height:1.05;letter-spacing:-.4px}
+  .zero-badge small{display:block;font-size:11px;letter-spacing:.55px;text-transform:uppercase;margin-top:5px;color:#ecfff3}
+  .dash-text{margin-top:12px;color:var(--grigio-scuro);font-size:14px;line-height:1.55}
+  .timeline{margin-top:16px;padding:14px;border:1px solid var(--grigio-bordo);border-radius:14px;background:#fafbf9}
+  .track{position:relative;height:12px;border-radius:999px;background:#e5e8bd}
+  .fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--verde) 0%,var(--verde-pill) 100%)}
+  .marker{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid var(--verde-dark);box-shadow:0 0 0 4px rgba(181,187,0,.18)}
+  .timeline-labels{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;font-weight:800;color:var(--grigio-medio)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{padding:8px 10px;border-radius:999px;background:#f7f9e6;border:1px solid #e5e8bd;color:var(--verde-dark);font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase}
+  .chip.off{background:#f2f2f0;border-color:#e2e2de;color:#8b8f8d;text-decoration:line-through}
+  .mini-list{display:grid;gap:10px}
+  .mini-item{display:flex;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1px dashed var(--grigio-bordo)}
+  .mini-item:last-child{padding-bottom:0;border-bottom:none}
+  .mini-item strong{font-size:13px}
+  .mini-item span{font-size:13px;font-weight:800;color:var(--verde-dark);text-align:right}
+  .message{padding:14px 16px;border-radius:14px;font-size:14px;line-height:1.6}
+  .message.ok{background:#f7f9e6;color:#345543;border:1px solid #e5e8bd}
+  .message.warn{background:#fff8ea;color:#715c28;border:1px solid #f2dfb0}
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{appearance:none;border:none;cursor:pointer;border-radius:12px;padding:13px 15px;font-family:inherit;font-weight:800;font-size:13px}
+  .btn.primary{background:var(--verde);color:#fff}
+  .btn.alt{background:#eef2ef;color:var(--grigio-scuro);border:1px solid var(--grigio-bordo)}
+  .footer{max-width:1320px;margin:0 auto;padding:0 22px 30px;color:var(--grigio-medio);font-size:12px}
+  @media (max-width:1100px){.layout{grid-template-columns:1fr}.dashboard{position:static}}
+  @media (max-width:780px){.grid-2,.included-grid,.grid-4,.zero-grid{grid-template-columns:1fr}
+  #fv-proj-grid{grid-template-columns:1fr 1fr!important}.wrap{padding:18px 14px}.main-header{padding:18px 16px}.topbar{padding:10px 16px}.card-head h2{font-size:21px}.zero-num{font-size:34px}}
+/* ===== Rete 21 brand alignment — modello aree_idonee ===== */
+:root{--r21-green:#b5bb00;--r21-green-dark:#9aa000;--r21-green-soft:#f7f9e6;--r21-dark:#414745;--r21-dark-2:#2d3230;--r21-border:#e1e4e0;--r21-gray:#6b7270}
+body{font-family:'Montserrat',Helvetica,Arial,Lucida,sans-serif;color:var(--r21-dark)}
+.topbar{background:var(--r21-green);color:#fff}
+.main-header{border-bottom:4px solid var(--r21-green)}
+.step-num,.seg button.active,.toggle.on .switch,.btn.primary{background:var(--r21-green);border-color:var(--r21-green)}
+.range-value,.kpi .val,.mini-item span,.zero-num{color:var(--r21-green-dark)}
+.track .fill,.fill{background:linear-gradient(90deg,var(--r21-green),#c8cf18)}
+.zero-badge{background:var(--r21-green);color:#fff}
+.marker{border-color:var(--r21-green-dark)}
+.r21-section{background:#fff;border:1px solid var(--r21-border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.r21-hero{background:linear-gradient(135deg,var(--r21-dark-2),var(--r21-dark));color:#fff;padding:24px 24px 22px;border-bottom:5px solid var(--r21-green)}
+.r21-hero .tag{display:inline-block;background:var(--r21-green);color:#fff;border-radius:999px;padding:7px 12px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.r21-hero h2{margin:0;font-size:clamp(24px,3vw,34px);line-height:1.14;letter-spacing:-.6px}
+.r21-hero p{margin:8px 0 0;color:#eef0ed;max-width:850px;line-height:1.55;font-size:14px}
+.r21-body{padding:22px}
+.r21-numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.r21-num{border:1px solid var(--r21-border);border-left:5px solid var(--r21-green);border-radius:14px;padding:18px;background:#fbfcf0;min-height:116px;display:flex;flex-direction:column;justify-content:center}
+.r21-num .big{font-size:34px;line-height:1;font-weight:900;color:var(--r21-dark);letter-spacing:-.8px}
+.r21-num .label{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;margin-top:8px;color:var(--r21-dark)}
+.r21-num .note{font-size:11px;color:var(--r21-gray);margin-top:5px;line-height:1.35;padding:0;background:transparent;border:0}
+.r21-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:stretch}
+.r21-card{border:1px solid var(--r21-border);border-radius:14px;padding:18px;background:#fff}
+.r21-card h3{margin:0 0 10px;font-size:18px;color:var(--r21-dark)}
+.r21-card p{margin:0 0 10px;color:var(--r21-gray);font-size:13.5px;line-height:1.62}
+.r21-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}
+.r21-list li{position:relative;padding-left:22px;color:var(--r21-dark);font-size:13.5px;line-height:1.5}
+.r21-list li::before{content:'✓';position:absolute;left:0;top:0;color:var(--r21-green-dark);font-weight:900}
+.r21-areas{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.r21-area{padding:13px 14px;border-radius:12px;background:#f5f5f3;border:1px solid var(--r21-border)}
+.r21-area strong{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.45px;color:var(--r21-dark);margin-bottom:5px}
+.r21-area span{display:block;font-size:12px;color:var(--r21-gray);line-height:1.45}
+.r21-cta-strip{margin-top:18px;background:var(--r21-green);color:#fff;border-radius:14px;padding:16px 18px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.r21-cta-strip span{font-size:14px;line-height:1.45}
+.r21-cta-strip a{background:#fff;color:var(--r21-dark);padding:10px 16px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.4px}
+@media(max-width:900px){.r21-numbers{grid-template-columns:1fr 1fr}.r21-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.r21-numbers,.r21-areas{grid-template-columns:1fr}.r21-hero,.r21-body{padding:18px}}
+/* ===== v12 — Percorsi superiori come Configuratore_vp72.html ===== */
+.path-section{background:#fff;border-bottom:1px solid var(--r21-border);box-shadow:0 1px 8px rgba(65,71,69,.04)}
+.path-inner{max-width:1320px;margin:0 auto;padding:20px 22px 22px}
+.path-title{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.path-title h2{margin:0;font-size:20px;font-weight:900;color:var(--r21-dark);letter-spacing:-.35px}
+.path-title p{margin:4px 0 0;color:var(--r21-gray);font-size:13px;max-width:760px;line-height:1.5}
+.path-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.path-card{appearance:none;border:2px solid var(--r21-border);background:#fff;border-radius:15px;padding:15px 12px;text-align:left;cursor:pointer;font-family:inherit;color:var(--r21-dark);transition:.18s;min-height:160px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.path-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--path-color,var(--r21-green));opacity:.65}
+.path-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(65,71,69,.12);border-color:var(--path-color,var(--r21-green))}
+.path-card.active{border-color:var(--path-color,var(--r21-green));background:#fbfcf0;box-shadow:0 0 0 4px rgba(181,187,0,.18)}
+.path-icon{font-size:27px;line-height:1}.path-name{font-size:14px;font-weight:900;line-height:1.18}.path-desc{font-size:11px;color:var(--r21-gray);line-height:1.5;margin-top:2px}
+.path-feat{margin-top:auto;font-size:10.5px;font-weight:800;color:var(--r21-dark);text-transform:uppercase;letter-spacing:.35px}
+.profile-strip{margin-top:14px;border:1px solid #e1e4e0;border-left:5px solid var(--r21-green);border-radius:13px;background:#f7f9e6;padding:13px 15px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}
+.profile-strip strong{color:var(--r21-dark);font-size:13.5px}.profile-strip span{color:var(--r21-gray);font-size:12.5px;line-height:1.45}
+.path-card[data-path="casa"]{--path-color:#b5bb00}.path-card[data-path="condo"]{--path-color:#2980b9}.path-card[data-path="azienda"]{--path-color:#8e44ad}.path-card[data-path="hotel"]{--path-color:#16a085}.path-card[data-path="complesso"]{--path-color:#c0392b}.path-card[data-path="produttore"]{--path-color:#d35400}
+@media(max-width:1180px){.path-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.path-grid{grid-template-columns:1fr 1fr}.path-card{min-height:132px}.path-inner{padding:16px 14px}}
+@media(max-width:460px){.path-grid{grid-template-columns:1fr}}
+/* vp73 — Percorso scelto: collassa selettore, lascia solo la card attiva */
+.path-grid.path-chosen{grid-template-columns:1fr!important}
+.path-grid.path-chosen .path-card:not(.active){display:none}
+.path-grid.path-chosen .path-card.active{min-height:auto;flex-direction:row;align-items:center;padding:12px 16px;gap:12px}
+.path-grid.path-chosen .path-card.active .path-desc{display:none}
+.path-grid.path-chosen .path-card.active .path-pills{display:none}
+.path-grid.path-chosen .path-card.active .path-feat{margin-top:0;flex:1;text-align:right;color:var(--r21-gray);display:block}
+.btn-change-path{appearance:none;border:1.5px solid var(--r21-green-dark);background:#fff;color:var(--r21-green-dark);border-radius:999px;padding:8px 16px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:background .18s,color .18s,border-color .18s;flex-shrink:0}
+.btn-change-path:hover{background:var(--r21-green);color:#fff;border-color:var(--r21-green)}
+  /* ===== v13 — mobilità azienda/hotel: colonnine e automezzi ===== */
+  .mobility-extra{display:none;margin-top:18px;padding:16px;border:2px solid var(--grigio-bordo);border-radius:16px;background:#fafbf7}
+  .mobility-extra.visible{display:block}
+  .mobility-extra-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.55px;color:var(--grigio-scuro);margin-bottom:12px}
+  .mobility-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .mobility-grid.hotel{grid-template-columns:1fr 1fr}
+  .mob-card{background:#fff;border:1px solid var(--grigio-bordo);border-left:5px solid var(--verde);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+  .mob-card.public{border-left-color:#414745}
+  .mob-card.fleet{border-left-color:#b5bb00}
+  .mob-card strong{display:block;font-size:14px;margin-bottom:6px;color:var(--grigio-scuro)}
+  .mob-card .hint{min-height:36px}
+  .mob-value{margin-top:10px;padding:9px 10px;border-radius:10px;background:#f3f5df;color:#414745;font-size:12px;font-weight:800;text-align:center}
+  .mob-value span{font-size:18px;color:var(--verde-dark);font-weight:900}
+  @media(max-width:900px){.mobility-grid,.mobility-grid.hotel{grid-template-columns:1fr}}
+  /* ===== vp94 — Caldaia: intervento suggerito da confermare ===== */
+  /* Card caldaia compatta: stessa altezza delle card pdc/bollitore/volano */
+  #card-caldaia{border:2px solid #e8a0a0;border-radius:14px;padding:14px;background:linear-gradient(180deg,#fff5f5 0%,#ffe4e4 100%);display:grid;gap:8px;position:relative}
+  .cs-badge{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;background:#c0392b;color:#fff;font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;margin-bottom:4px}
+  #card-caldaia .cs-title{font-size:14px;font-weight:800;color:#7b1c1c;line-height:1.25}
+  #card-caldaia .cs-why{font-size:11px;color:#a93226;line-height:1.45}
+  /* vp107 — selettore modalità caldaia */
+  /* vp110: layout 1 pill attiva + 2 pill scelta — desktop */
+  .caldaia-mode-wrap{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+  .caldaia-mode-active-row{display:flex}
+  .caldaia-mode-active-pill{display:block;width:100%;background:#c0392b;color:#fff;font-family:inherit;font-size:11px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;padding:8px 10px;border-radius:8px;text-align:center;line-height:1.3;box-sizing:border-box}
+  .caldaia-mode-seg{display:flex;gap:0;border-radius:8px;overflow:hidden;border:2px solid #c0392b}
+  .caldaia-mode-seg button{flex:1;appearance:none;border:none;background:#fff;color:#7b1c1c;font-family:inherit;font-size:10px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;padding:7px 4px;cursor:pointer;transition:background .15s,color .15s;line-height:1.3}
+  .caldaia-mode-seg button+button{border-left:2px solid #c0392b}
+  .caldaia-mode-seg button.active{background:#c0392b;color:#fff}
+  .caldaia-mode-seg button:hover:not(.active){background:#fff5f5}
+  .caldaia-mode-hint{font-size:10.5px;color:#7b1c1c;margin:4px 0 2px;font-weight:700}
+  /* Su mobile: nasconde pill attiva sopra, lascia solo i 2 bottoni */
+  @media(max-width:600px){.caldaia-mode-active-row{display:none}}
+  .caldaia-slider-wrap{padding-top:8px;border-top:1px solid #c3e6cb;display:none}
+  .caldaia-slider-wrap.visible{display:block}
+  .caldaia-ct-note{padding:6px 9px;border-radius:7px;background:#fff8e1;border-left:3px solid #f39c12;font-size:10px;color:#7a5310;line-height:1.45}
+  /* ===== v14 — Condominio: caldaia backup e listino reale ===== */
+  .condo-boiler-extra{display:none;margin-top:16px;padding:16px;border:2px solid var(--grigio-bordo);border-left:5px solid #c0392b;border-radius:14px;background:#fffaf9}
+  .condo-boiler-extra.visible{display:block}
+  .condo-boiler-extra .boiler-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.55px;color:#922b21;margin-bottom:10px}
+  .condo-boiler-extra .boiler-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center}
+  .boiler-value{font-size:13px;font-weight:800;color:#922b21;margin-top:8px}
+  @media(max-width:900px){.condo-boiler-extra .boiler-grid{grid-template-columns:1fr}}
+  /* ===== v15 — Proposta termica automatica + variazione manuale ===== */
+  .thermal-proposal{margin-top:16px;padding:16px;border:2px solid var(--grigio-bordo);border-left:5px solid var(--verde);border-radius:14px;background:#fff}
+  .thermal-proposal.hidden{display:none}
+  .thermal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .thermal-head .title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.55px;color:var(--verde-dark);margin-bottom:5px}
+  .thermal-head p{margin:0;font-size:12.5px;color:var(--grigio-medio);line-height:1.55;max-width:720px}
+  .thermal-badge{padding:8px 11px;border-radius:999px;background:#eef2e3;color:var(--grigio-scuro);font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;border:1px solid var(--grigio-bordo)}
+  .thermal-badge.manual{background:#fff8e1;color:#7d6608;border-color:#f0d088}
+  .thermal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .thermal-grid.casa{grid-template-columns:repeat(3,1fr)}
+  .thermal-card{border:1px solid var(--grigio-bordo);border-radius:14px;padding:14px;background:#fafbf7;display:grid;gap:8px}
+  .thermal-card.proposed-field{border:1.5px solid #a8d5a2;background:linear-gradient(180deg,#f2faf0 0%,#e4f5e0 100%)}
+  .thermal-card.hide{display:none}
+  .thermal-card strong{font-size:14px;color:var(--grigio-scuro)}
+  .thermal-card-toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+  .thermal-card-toprow .topline-right-group{display:flex;align-items:center;gap:5px;flex-shrink:0}
+  .thermal-card-toprow strong{flex:1;min-width:0}
+  .thermal-card .hint{font-size:11.5px;color:var(--grigio-medio);line-height:1.45;min-height:34px}
+  .thermal-card .range-head{gap:8px}
+  .thermal-card .range-value{font-size:23px;color:var(--verde-dark);min-width:82px;text-align:right}
+  .thermal-card .range-value small{font-size:11px}
+  .thermal-source{margin-top:12px;padding:12px 14px;border-radius:12px;background:#f5f5f3;border-left:4px solid var(--grigio-scuro);font-size:12px;color:var(--grigio-scuro);line-height:1.55}
+  .thermal-source strong{color:var(--grigio-scuro)}
+  .fabbisogno-box{margin-top:16px;padding:15px;border:2px solid var(--grigio-bordo);border-radius:14px;background:#fffef8}
+  .fabbisogno-box .fb-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.55px;color:var(--grigio-scuro);margin-bottom:8px}
+  .fabbisogno-main{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center}
+  .fabbisogno-kpi{padding:13px 14px;border-radius:12px;background:#eef2e3;border:1px solid #dde3c3}
+  .fabbisogno-kpi .big{font-size:28px;font-weight:900;color:var(--verde-dark);line-height:1.05}
+  .fabbisogno-kpi .small{font-size:11.5px;color:var(--grigio-medio);font-weight:700;margin-top:5px}
+  .text-input{width:100%;padding:12px 14px;border:2px solid var(--grigio-bordo);border-radius:10px;font-family:'Montserrat',Helvetica,Arial,Lucida,sans-serif;font-size:14px;font-weight:700;color:var(--grigio-scuro);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+  .text-input:focus{border-color:var(--verde);box-shadow:0 0 0 3px rgba(181,187,0,.14)}
+  .climate-card{margin-top:12px;padding:13px 15px;border-radius:12px;background:#f7f8e8;border:1px solid #dfe2a7;border-left:5px solid var(--verde);display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+  .climate-badge{width:54px;height:54px;border-radius:14px;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-size:22px;font-weight:900;line-height:1}
+  .climate-card strong{display:block;font-size:13px;color:var(--grigio-scuro);margin-bottom:3px}
+  .climate-card span{display:block;font-size:12px;color:var(--grigio-medio);line-height:1.5}
+  .climate-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .climate-split .part{padding:10px 12px;border-radius:10px;background:#fff;border:1px solid var(--grigio-bordo)}
+  .climate-split .part .v{font-size:20px;font-weight:900;color:var(--verde-dark);line-height:1.05}
+  .climate-split .part .l{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--grigio-medio);margin-top:4px}
+  @media(max-width:780px){.climate-card{grid-template-columns:1fr}.climate-badge{width:auto}.climate-split{grid-template-columns:1fr}}
+  @media(max-width:900px){.thermal-grid,.thermal-grid.casa,.fabbisogno-main{grid-template-columns:1fr}.thermal-card .range-value{text-align:left}}
+/* ===== v18 — cruscotto contatore retro, SOLO stile grafico: non altera compilazione e automatismi ===== */
+.dash-counter-wrap{
+  position:relative;
+  width:100%;
+  margin:0 0 14px;
+  padding:22px 18px 16px;
+  border-radius:34px;
+  border:7px solid #2e5c4e;
+  background:
+    radial-gradient(circle at 8% 18%,rgba(39,174,96,.72) 0 7px,transparent 8px),
+    radial-gradient(circle at 94% 18%,rgba(255,255,255,.95) 0 7px,rgba(0,0,0,.30) 8px,transparent 11px),
+    radial-gradient(circle at 8% 86%,rgba(255,255,255,.75) 0 7px,rgba(0,0,0,.28) 8px,transparent 11px),
+    radial-gradient(circle at 94% 86%,rgba(255,255,255,.72) 0 7px,rgba(0,0,0,.34) 8px,transparent 11px),
+    linear-gradient(90deg,rgba(39,174,96,.50) 0%,rgba(39,174,96,.20) 18%,rgba(245,246,243,.72) 35%,rgba(222,223,220,.96) 100%),
+    #e5e5e2;
+  box-shadow:
+    inset 0 0 0 5px rgba(255,255,255,.66),
+    inset 0 0 0 8px rgba(65,71,69,.10),
+    inset 0 18px 28px rgba(255,255,255,.50),
+    inset 0 -10px 16px rgba(65,71,69,.12),
+    0 14px 28px rgba(65,71,69,.18);
+  overflow:hidden;
+  transition:box-shadow .55s ease,border-color .55s ease,filter .55s ease;
+  pointer-events:none;
+}
+.dash-counter-wrap::before{
+  content:"";
+  position:absolute;
+  display:none;
+}
+.dash-counter-wrap::after{
+  content:"";
+  position:absolute;
+  display:none;
+}
+.dash-counter-wrap.trend-down{
+  border-color:#1f2d2a;
+  box-shadow:
+    inset 0 0 0 5px rgba(255,255,255,.66),
+    inset 0 0 0 8px rgba(65,71,69,.10),
+    inset 0 18px 28px rgba(255,255,255,.50),
+    inset 0 -10px 16px rgba(65,71,69,.12),
+    -9px 0 28px rgba(39,174,96,.40),
+    0 14px 28px rgba(65,71,69,.18);
+}
+.dash-counter-wrap.trend-up{
+  border-color:#2d2222;
+  filter:saturate(1.02);
+  box-shadow:
+    inset 0 0 0 5px rgba(255,255,255,.66),
+    inset 0 0 0 8px rgba(65,71,69,.10),
+    inset 0 18px 28px rgba(255,255,255,.50),
+    inset 0 -10px 16px rgba(65,71,69,.12),
+    -9px 0 28px rgba(192,57,43,.32),
+    0 14px 28px rgba(65,71,69,.18);
+}
+.dash-counter-title{
+  position:relative;
+  z-index:4;
+  text-align:center;
+  font-size:14px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:2px;
+  color:#2d3230;
+  text-transform:uppercase;
+  margin:20px 0 20px;
+  text-shadow:0 1px 0 rgba(255,255,255,.80);
+  white-space:nowrap;
+  overflow:visible;
+  max-width:100%;
+  padding:0 6px;
+}
+.dash-counter-units{
+  position:relative;
+  z-index:4;
+  display:grid;
+  grid-template-columns:1.18fr .82fr;
+  gap:24px;
+  align-items:start;
+  justify-content:center;
+  max-width:306px;
+  margin:0 auto;
+}
+.flip-cell{display:grid;gap:9px;align-items:start}
+.flip-box{
+  background:#1a3d35;
+  border-radius:14px;
+  padding:8px 7px;
+  border:7px solid #2b3031;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    inset 0 8px 13px rgba(255,255,255,.04),
+    inset 0 -12px 16px rgba(0,0,0,.34),
+    0 3px 0 rgba(0,0,0,.30),
+    0 8px 18px rgba(0,0,0,.18);
+  min-height:78px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.flip-box::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:50%;
+  height:1px;
+  background:rgba(255,255,255,.34);
+  z-index:3;
+  box-shadow:0 1px 0 rgba(0,0,0,.55);
+  pointer-events:none;
+}
+.flip-box::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.11),transparent 38%,rgba(0,0,0,.20) 40%,rgba(0,0,0,.28));
+  pointer-events:none;
+  z-index:2;
+}
+.flip-num{
+  position:relative;
+  z-index:4;
+  font-family:Montserrat,Helvetica,Arial,sans-serif;
+  font-size:50px;
+  line-height:.88;
+  font-weight:900;
+  letter-spacing:4px;
+  color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.72);
+  font-variant-numeric:tabular-nums;
+  text-align:center;
+  transition:transform .28s ease,opacity .28s ease;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.flip-num.changing{transform:translateY(-3px);opacity:.72}
+.flip-lbl{
+  font-size:16px;
+  line-height:1;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  color:#2d3230;
+  text-align:center;
+  text-shadow:0 1px 0 rgba(255,255,255,.8);
+}
+.dash-delay-note{
+  margin:16px 0 0;
+  text-align:center;
+  color:#536b83;
+  font-size:11.5px;
+  font-weight:700;
+}
+.dash-delay-note::before{content:'◷ ';font-size:12px;color:#536b83}
+.dash-trend-legend{display:none}
+.trend-pill{border-radius:999px;padding:7px 9px;font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.35px;text-align:center;border:1px solid var(--grigio-bordo);background:#fff;color:var(--grigio-medio)}
+.trend-pill.down{color:#219653;border-color:#bfe5ca;background:#f4fff6}.trend-pill.up{color:#c0392b;border-color:#efc2bd;background:#fff6f4}
+.zero-total{transition:background .45s ease,color .45s ease}.zero-total.pending{background:#fff8ea;color:#715c28}.zero-total.down{background:#f4fff6;color:#219653}.zero-total.up{background:#fff6f4;color:#c0392b}
+@media(max-width:780px){.dash-counter-wrap{padding:22px 18px 16px;border-radius:28px}.dash-counter-title{font-size:13px;letter-spacing:1.4px;margin-bottom:20px}.dash-counter-units{grid-template-columns:1.18fr .82fr;gap:18px;max-width:100%}.flip-box{min-height:74px;border-width:6px}.flip-num{font-size:44px;letter-spacing:3px}.flip-lbl{font-size:14px}}
+/* ===== v19 — distinzione campi obbligatori vs proposti/modificabili ===== */
+.field-legend{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 18px}
+.legend-chip{flex:1 1 270px;display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;border:2px solid var(--grigio-bordo);background:#fff;box-shadow:var(--shadow)}
+.legend-chip.required{border-color:#d9dc80;background:#fbfcf0}
+.legend-chip.proposed{border-color:#d8dcd8;background:#f8faf8}
+.legend-mark{width:14px;height:14px;border-radius:50%;flex:0 0 auto;margin-top:2px}
+.legend-chip.required .legend-mark{background:var(--verde);box-shadow:0 0 0 5px rgba(181,187,0,.16)}
+.legend-chip.proposed .legend-mark{background:#6b7270;box-shadow:0 0 0 5px rgba(107,114,112,.10)}
+.legend-chip strong{display:block;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;color:var(--grigio-scuro);margin-bottom:3px}
+.legend-chip span{display:block;font-size:12px;color:var(--grigio-medio);line-height:1.5}
+.field-accent{padding:14px 15px;border-radius:16px;border:2px solid var(--grigio-bordo);background:#fff;box-shadow:var(--shadow)}
+.field-accent.required-field{border-color:#d9dc80;background:linear-gradient(180deg,#ffffff 0%,#fbfcf0 100%)}
+.field-accent.proposed-field{border-color:#d7dddb;background:linear-gradient(180deg,#ffffff 0%,#f7faf8 100%)}
+.field-topline{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.field-topline label,.field-accent>label{margin:0}
+.field-badge{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.45px;text-transform:uppercase;white-space:nowrap;border:1px solid transparent}
+.field-badge.required{background:var(--verde);border-color:var(--verde-dark);color:#fff;box-shadow:0 4px 10px rgba(181,187,0,.18)}
+.field-badge.proposed{background:#eef2ef;border-color:#d7dddb;color:var(--grigio-scuro)}
+  .thermal-card .field-badge.proposed{background:#d4edda;border-color:#82c893;color:#1d5c2e;font-size:8px}
+.required-star{color:#c0392b;font-weight:900;margin-left:4px}
+.required-field .hint strong,.proposed-field .hint strong{color:var(--grigio-scuro)}
+.included.proposed-field,.thermal-card.proposed-field{position:relative}
+.included.proposed-field::before{content:'Proposto';position:absolute;top:10px;right:10px;padding:5px 8px;border-radius:999px;background:#eef2ef;border:1px solid #d7dddb;color:#414745;font-size:9px;font-weight:900;letter-spacing:.4px;text-transform:uppercase}
+/* Su mobile: layout toprow colonna */
+@media(max-width:1100px){
+  .thermal-card-toprow{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+    padding-top:0;
+  }
+  .thermal-card-toprow strong{
+    font-size:10px!important;
+    font-weight:900!important;
+    text-transform:uppercase!important;
+    letter-spacing:.55px!important;
+    color:var(--grigio-scuro)!important;
+  }
+  /* Il gruppo CRUSCOTTO+badge inline si affianca come in field-topline */
+  .thermal-card-toprow .topline-right-group{align-self:flex-start}
+}
+/* Su desktop: badge inline visibile nella toprow, allineato a destra */
+.client-input-row.optional-field{margin-top:12px;padding-top:12px;border-top:1px dashed var(--grigio-bordo)}
+.optional-field .field-badge{background:#fafbf9;border-color:#e2e5e2;color:#6b7270}
+@media(max-width:780px){.field-topline{flex-direction:column;align-items:flex-start}.field-badge{white-space:normal}}
+/* ===== vp75 — fisarmonica compatta stile Rete21 aree_idonee ===== */
+.accordion-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px;padding:0}
+.accordion-btn{appearance:none;border:2px solid var(--r21-green);background:#fff;color:var(--r21-green-dark);border-radius:4px;padding:11px 17px;font-family:inherit;font-size:12.5px;font-weight:900;text-transform:uppercase;letter-spacing:.35px;cursor:pointer;transition:background .18s,color .18s,box-shadow .18s,transform .18s;box-shadow:0 2px 8px rgba(65,71,69,.04)}
+.accordion-btn:hover{background:#fbfcf0;transform:translateY(-1px);box-shadow:0 6px 18px rgba(65,71,69,.10)}
+.accordion-section{border-radius:6px;box-shadow:none;border:1px solid var(--r21-border);overflow:hidden;transition:box-shadow .18s,border-color .18s,background .18s}
+.accordion-section+.accordion-section{margin-top:14px}
+.accordion-section .card-head{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:18px 22px;background:#fff;border-bottom:1px solid transparent;cursor:pointer;user-select:none;transition:background .18s,border-color .18s}
+.accordion-section .card-head:hover{background:#fbfcf0}
+.accordion-section .card-head .step{margin:0;min-width:0}
+.accordion-section .card-head h2{margin:0;font-size:17px;line-height:1.24;letter-spacing:-.2px}
+.accordion-section .card-head p{display:none!important}
+.accordion-section .step-num{width:36px;height:36px;background:var(--r21-green);font-size:15px;box-shadow:none}
+.accordion-right{display:flex;align-items:center;gap:12px;justify-self:end;white-space:nowrap}
+.accordion-meta{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:6px 12px;border-radius:999px;background:#eef0ee;color:#6b7270;font-size:11.5px;font-weight:900;letter-spacing:.15px}
+.accordion-arrow{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;color:var(--r21-green-dark);font-size:14px;font-weight:900;line-height:1;transition:transform .18s ease}
+.accordion-section.collapsed .accordion-arrow{transform:none}
+.accordion-section:not(.collapsed) .accordion-arrow{transform:rotate(180deg)}
+.accordion-section.collapsed .card-body{display:none}
+.accordion-section:not(.collapsed){border-color:#dfe2a7;box-shadow:0 4px 14px rgba(65,71,69,.06)}
+.accordion-section:not(.collapsed) .card-head{border-bottom-color:#e5e8bd;background:#fff}
+.accordion-section:not(.collapsed) .accordion-meta{background:#f7f9e6;color:var(--r21-green-dark)}
+.accordion-section .card-body{padding:22px;background:#fff}
+@media(max-width:780px){.accordion-controls{gap:8px}.accordion-btn{width:100%;padding:11px 14px}.accordion-section .card-head{grid-template-columns:1fr;padding:16px}.accordion-right{justify-self:start;margin-left:48px}.accordion-section .card-head h2{font-size:16px}}
+@media print{.accordion-controls{display:none!important}.accordion-section .card-body{display:block!important}.accordion-arrow{display:none!important}}
+/* ===== vp76 — distinzione chiara: compilabile / proposto variabile / non variabile ===== */
+.area-type-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 14px}
+.area-type-card{display:flex;gap:10px;align-items:flex-start;padding:12px 13px;border-radius:12px;border:2px solid var(--grigio-bordo);background:#fff;box-shadow:0 2px 8px rgba(65,71,69,.04)}
+.area-type-card .dot{width:15px;height:15px;border-radius:50%;flex:0 0 auto;margin-top:2px}
+.area-type-card strong{display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;color:var(--grigio-scuro);line-height:1.2}
+.area-type-card span{display:block;margin-top:3px;font-size:11.5px;color:var(--grigio-medio);line-height:1.35}
+.area-type-card.compilabile{border-color:#b5bb00;background:#fbfcf0}.area-type-card.compilabile .dot{background:#b5bb00;box-shadow:0 0 0 5px rgba(181,187,0,.16)}
+.area-type-card.proposto{border-color:#f0c15a;background:#fffaf0}.area-type-card.proposto .dot{background:#f39c12;box-shadow:0 0 0 5px rgba(243,156,18,.14)}
+.area-type-card.nonvariabile{border-color:#cfd5d2;background:#f6f7f5}.area-type-card.nonvariabile .dot{background:#8b918e;box-shadow:0 0 0 5px rgba(107,114,112,.12)}
+.field-accent.required-field{border-left:7px solid #b5bb00!important;box-shadow:0 4px 12px rgba(181,187,0,.08)}
+.field-accent.proposed-field,.thermal-card.proposed-field,.included.proposed-field{border-left:7px solid #f39c12!important;background:linear-gradient(180deg,#fff 0%,#fffaf0 100%)!important;box-shadow:0 4px 12px rgba(243,156,18,.06)}
+.readonly-field,.kpi.readonly-field,.climate-card.readonly-field,.fabbisogno-kpi.readonly-field,.climate-split .part.readonly-field{position:relative;border-left:7px solid #8b918e!important;background:linear-gradient(180deg,#fff 0%,#f6f7f5 100%)!important;box-shadow:0 3px 10px rgba(65,71,69,.05)}
+.readonly-field::after{content:'Non variabile';position:absolute;top:9px;right:10px;padding:5px 8px;border-radius:999px;background:#eef0ee;border:1px solid #cfd5d2;color:#6b7270;font-size:9px;font-weight:900;letter-spacing:.35px;text-transform:uppercase;line-height:1}
+.kpi.readonly-field::after{top:10px;right:10px}
+.field-badge.required{background:#b5bb00;border-color:#9aa000;color:#fff}.field-badge.proposed{background:#fff1d0;border-color:#f0c15a;color:#7a5310}
+.field-badge.readonly{background:#eef0ee;border-color:#cfd5d2;color:#6b7270}
+.accordion-section.type-compilabile{border-left:6px solid #b5bb00}.accordion-section.type-proposto{border-left:6px solid #f39c12}.accordion-section.type-nonvariabile{border-left:6px solid #8b918e}
+.accordion-meta.type-compilabile{background:#f7f9e6;color:#9aa000}.accordion-meta.type-proposto{background:#fff1d0;color:#8a5b00}.accordion-meta.type-nonvariabile{background:#eef0ee;color:#6b7270}
+.accordion-section:not(.collapsed).type-compilabile{border-color:#d9dc80}.accordion-section:not(.collapsed).type-proposto{border-color:#f0c15a}.accordion-section:not(.collapsed).type-nonvariabile{border-color:#cfd5d2}
+.field-legend{display:none!important}
+@media(max-width:900px){.area-type-legend{grid-template-columns:1fr}}
+@media print{.area-type-legend{break-inside:avoid}}
+/* ===== v17 — reset proposte, ricerca Comune assistita, report parallelo ===== */
+.field.autocomplete-field{position:relative}
+.city-suggestions{display:none;position:absolute;left:0;right:0;top:100%;z-index:80;margin-top:4px;background:#fff;border:1px solid var(--grigio-bordo);border-radius:12px;box-shadow:0 10px 26px rgba(65,71,69,.16);max-height:240px;overflow:auto;padding:6px}
+.city-suggestions.visible{display:block}
+.city-suggestion{width:100%;border:0;background:#fff;text-align:left;font-family:inherit;padding:10px 12px;border-radius:9px;cursor:pointer;color:var(--grigio-scuro);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.city-suggestion:hover{background:#f7f9e6}
+.city-suggestion strong{font-size:13px}.city-suggestion span{font-size:11px;color:var(--grigio-medio);font-weight:800}
+.reset-proposal-row{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:#fff8ea;border:1px solid #f2dfb0;color:#715c28;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.reset-proposal-row.visible{display:flex}
+.reset-proposal-row strong{font-size:13px}.reset-proposal-row span{font-size:12px;line-height:1.45}
+.btn-reset-proposed{appearance:none;border:2px solid var(--verde-dark);background:#fff;color:var(--grigio-scuro);border-radius:999px;padding:9px 13px;font-family:inherit;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
+.btn-reset-proposed:hover{background:var(--verde);color:#fff}
+.thermal-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.thermal-actions .btn-reset-proposed{display:none}
+.thermal-actions.manual .btn-reset-proposed{display:inline-flex}
+.client-input-row{margin-top:12px}
+.report-box{border:1px solid var(--grigio-bordo);border-radius:14px;background:#fafbf9;padding:14px;margin-top:10px}
+.report-code{font-size:18px;font-weight:900;color:var(--grigio-scuro);line-height:1.1;word-break:break-word}
+.report-help{font-size:11.5px;color:var(--grigio-medio);line-height:1.45;margin-top:6px}
+.report-list{display:grid;gap:8px;margin-top:12px;max-height:220px;overflow:auto}
+.report-item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--grigio-bordo);border-radius:10px;background:#fff}
+.report-item strong{font-size:12px;color:var(--grigio-scuro);word-break:break-word}.report-item span{font-size:10.5px;color:var(--grigio-medio);display:block;margin-top:2px}
+.report-item button{border:1px solid var(--verde-dark);background:#fff;border-radius:999px;font-family:inherit;font-size:11px;font-weight:900;padding:7px 10px;cursor:pointer}
+.report-item button:hover{background:var(--verde);color:#fff}
+@media print{.path-section,.actions,.report-list,.btn-reset-proposed,.city-suggestions{display:none!important}.report-box{break-inside:avoid}}
+/* ===== vp77 — fix leggibilita: niente badge sovrapposti nei risultati non variabili ===== */
+.kpi.readonly-field::after,
+.fabbisogno-kpi.readonly-field::after,
+.climate-card.readonly-field::after,
+.climate-split .part.readonly-field::after{display:none!important;content:none!important}
+.kpi.readonly-field{padding-top:18px!important}
+.kpi.readonly-field .val{padding-right:0!important}
+.readonly-field{position:relative}
+.readonly-field.kpi{border-left:7px solid #8b918e!important}
+.readonly-field .lbl::before{content:'NON VARIABILE';display:inline-block;margin-right:7px;margin-bottom:5px;padding:4px 7px;border-radius:999px;background:#eef0ee;border:1px solid #cfd5d2;color:#6b7270;font-size:8.5px;font-weight:900;letter-spacing:.35px;vertical-align:middle;line-height:1}
+.fabbisogno-kpi.readonly-field .small::before{content:'NON VARIABILE';display:inline-block;margin-right:7px;margin-bottom:5px;padding:4px 7px;border-radius:999px;background:#eef0ee;border:1px solid #cfd5d2;color:#6b7270;font-size:8.5px;font-weight:900;letter-spacing:.35px;vertical-align:middle;line-height:1}
+.field.readonly-field::after{display:none!important;content:none!important}
+.field.readonly-field .field-topline{align-items:center;flex-wrap:wrap;row-gap:8px}
+.field.readonly-field .field-badge.readonly{margin-left:auto}
+/* ===== vp78 — fix sormonto badge nelle card non variabili compatte ===== */
+.field.readonly-field .field-topline{display:block!important;margin-bottom:10px!important}
+.field.readonly-field .field-topline label{display:block!important;padding-right:0!important;margin-bottom:6px!important}
+.field.readonly-field .field-topline .field-badge.readonly{position:static!important;display:inline-flex!important;margin:0 0 2px 0!important;max-width:100%;white-space:normal!important;line-height:1.15!important;font-size:8.5px!important;padding:4px 7px!important}
+.field.readonly-field .info-badges{margin-top:4px!important}
+.field.readonly-field{padding-top:14px!important}
+@media(max-width:520px){.field.readonly-field .field-topline .field-badge.readonly{display:none!important}}
+
+
+/* ===== vp88 — mini timeline cruscotto ===== */
+.dash-mini-timeline{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dmt-block{border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.dmt-neutral{background:#fff8e1;border:1.5px solid #f0d088}
+.dmt-positive{background:#f0fff5;border:1.5px solid #a5d6c0}
+.dmt-range{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;color:#6b7270;line-height:1.2}
+.dmt-label{font-size:11px;font-weight:800;line-height:1.35}
+.dmt-neutral .dmt-label{color:#7a5310}
+.dmt-positive .dmt-label{color:#1a5c3a}
+@media(max-width:520px){.dash-mini-timeline{grid-template-columns:1fr}}
+/* ===== vp82 — split-flap stile Solari (scaleY) ===== */
+.flip-num{display:block!important;position:relative!important;height:62px!important;min-height:unset!important;flex:none!important;align-items:unset!important;justify-content:unset!important;transition:none!important;opacity:1!important;transform:none!important}
+.flip-num.changing{transform:none!important;opacity:1!important}
+.sf-static{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-family:Montserrat,Helvetica,Arial,sans-serif;font-size:46px;font-weight:900;color:#fff;letter-spacing:4px;font-variant-numeric:tabular-nums;text-shadow:0 3px 0 rgba(0,0,0,.72);background:#1a3d35;user-select:none}
+.sf-top-cover{position:absolute;left:0;right:0;top:0;height:50%;display:flex;align-items:flex-end;overflow:hidden;font-family:Montserrat,Helvetica,Arial,sans-serif;font-size:46px;font-weight:900;color:#fff;letter-spacing:4px;font-variant-numeric:tabular-nums;text-shadow:0 3px 0 rgba(0,0,0,.72);background:#1a3d35;transform-origin:center bottom;z-index:6;border-bottom:1px solid rgba(255,255,255,.28)}
+.sf-top-cover span{display:block;transform:translateY(50%)}
+.sf-bot-cover{position:absolute;left:0;right:0;bottom:0;height:50%;display:flex;align-items:flex-start;overflow:hidden;font-family:Montserrat,Helvetica,Arial,sans-serif;font-size:46px;font-weight:900;color:#fff;letter-spacing:4px;font-variant-numeric:tabular-nums;text-shadow:0 3px 0 rgba(0,0,0,.72);background:#1a3d35;transform-origin:center top;transform:scaleY(0);z-index:6}
+.sf-bot-cover span{display:block;transform:translateY(-50%)}
+@keyframes sf-fall{from{transform:scaleY(1)}to{transform:scaleY(0)}}
+@keyframes sf-rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.sf-top-cover.go{animation:sf-fall 143ms ease-in forwards}
+.sf-bot-cover.go{animation:sf-rise 156ms ease-out 143ms forwards}
+@media(max-width:780px){.sf-static,.sf-top-cover,.sf-bot-cover{font-size:40px;letter-spacing:3px}.flip-num{height:56px!important}}
+
+/* ===== vp82 — accordion pill-button stile aree_idonee ===== */
+.accordion-pill{
+  display:inline-flex;align-items:stretch;
+  border:1.5px solid var(--r21-border);
+  border-radius:999px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 1px 5px rgba(65,71,69,.07);
+  transition:border-color .18s,box-shadow .18s;
+  pointer-events:none;   /* il click lo gestisce il card-head */
+}
+.accordion-section:not(.collapsed) .accordion-pill{
+  border-color:#c8cf18;
+  box-shadow:0 2px 9px rgba(181,187,0,.16);
+}
+/* meta dentro il pill: rimuovi border-radius autonomo, aggiungi divisore */
+.accordion-pill .accordion-meta{
+  border-radius:0;
+  border-right:1.5px solid var(--r21-border);
+  padding:6px 11px 6px 14px;
+  min-height:unset;
+  font-size:11px;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+}
+.accordion-section:not(.collapsed) .accordion-pill .accordion-meta{
+  border-right-color:#c8cf18;
+}
+/* freccia dentro il pill */
+.accordion-pill .accordion-arrow{
+  width:34px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  color:var(--r21-green-dark);
+}
+@media(max-width:780px){
+  .accordion-pill .accordion-meta{font-size:10px;padding:5px 9px 5px 12px}
+  .accordion-pill .accordion-arrow{width:28px}
+}
+
+/* ===== INDIETRO pill — rimando alla sezione di provenienza dal cruscotto ===== */
+#dash-back-pill{
+  display:none;
+  width:100%;margin-top:10px;
+  padding:11px 18px;
+  border-radius:999px;
+  font-family:inherit;font-size:12px;font-weight:900;letter-spacing:.45px;text-transform:uppercase;
+  border:2px solid var(--grigio-bordo);
+  background:#fff;color:var(--grigio-scuro);
+  cursor:pointer;text-align:center;
+  transition:background .15s,color .15s,border-color .15s,box-shadow .15s;
+  box-shadow:0 1px 4px rgba(65,71,69,.07);
+}
+#dash-back-pill:hover,#dash-back-pill:active{
+  background:var(--grigio-scuro);color:#fff;border-color:var(--grigio-scuro);
+  box-shadow:0 3px 10px rgba(65,71,69,.18);
+}
+
+/* ===== CRUSCOTTO pill — link di rimando al contatore rata ===== */
+/* Pill dentro i singoli campi compilabili / proposti — SOLO MOBILE */
+.topline-right-group{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.thermal-card-toprow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cruscotto-pill-field{
+  display:none; /* nascosto su desktop */
+  align-items:center;gap:4px;
+  /* Stesse dimensioni di .field-badge */
+  padding:6px 10px;
+  border-radius:999px;
+  font-family:inherit;
+  font-size:10px;font-weight:900;letter-spacing:.45px;text-transform:uppercase;
+  white-space:nowrap;line-height:1;flex-shrink:0;
+  /* Colori verdi bordo/bg come field-badge outline */
+  border:1.5px solid var(--r21-green-dark);
+  background:var(--r21-green-soft);
+  color:var(--r21-green-dark);
+  cursor:pointer;pointer-events:auto;
+  box-shadow:0 1px 4px rgba(181,187,0,.18);
+  transition:background .15s,color .15s,border-color .15s,box-shadow .15s;
+}
+.cruscotto-pill-field::before{content:'↗';font-size:10px}
+.cruscotto-pill-field:hover,.cruscotto-pill-field:active{
+  background:var(--r21-green);color:#fff;border-color:var(--r21-green);
+  box-shadow:0 3px 10px rgba(181,187,0,.32);
+}
+/* vp99: pill CRUSCOTTO rimossi — aggiornamento automatico */
+.cruscotto-pill-field{display:none!important}
+@media(max-width:780px){.cruscotto-pill-field{font-size:10px;padding:6px 10px}}
+/* Indicatore "in attesa" sul totale mesi quando il counter è deferrito su mobile */
+.zero-total.mobile-pending{
+  background:#fff8e1;
+  color:#7d5c00;
+  border:1px solid #f0d088;
+  animation:pulse-pending 1.4s ease-in-out infinite;
+}
+@keyframes pulse-pending{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ===== vp82 — responsive integrato desktop+mobile ===== */
+
+/* Layout: sopra 1100px resta grid invariato.
+   Sotto 1100px diventa flex colonna con aside (cruscotto) SOPRA main. */
+@media(max-width:1100px){
+  .layout{
+    display:flex!important;
+    flex-direction:column;
+    gap:18px;
+  }
+  .dashboard{
+    order:-1;          /* cruscotto prima delle sezioni */
+    position:static;
+  }
+  main.stack{
+    order:0;
+  }
+}
+
+/* ── Mobile: nasconde elementi verbosi ── */
+@media(max-width:780px){
+
+  /* Topbar: nasconde la span descrittiva */
+  .topbar span{ display:none }
+  .topbar .ver-tag{ display:inline!important }
+
+  /* Header: abbrevia paragrafo sotto h1 */
+  .main-header p{ display:none }
+
+  /* Path-section: nasconde sottotitolo lungo */
+  .path-title p{ display:none }
+
+  /* Legenda tipologia aree */
+  .area-type-legend{ display:none!important }
+
+  /* Hint: nasconde quelli non essenziali.
+     Mantiene solo i hint dentro .range-wrap del cruscotto
+     e quelli dentro .note (sono già rari). */
+  .hint{ display:none }
+  /* Ripristina hint essenziali nel cruscotto e nelle note */
+  .dash-text{ display:block }
+
+  /* Campo client-name: optional, nascondi su mobile */
+  .client-input-row.optional-field{ display:none }
+
+  /* Thermal-source-note: nasconde */
+  .thermal-source{ display:none }
+
+  /* Reset-proposal-row: nascondi su mobile (c'è il btn nel dashboard) */
+  .reset-proposal-row{ display:none!important }
+
+  /* Note a fondo sezione 4 e 5 */
+  .note{ display:none }
+
+  /* Perché Rete 21: nasconde le due card testo, mantiene numeri e CTA */
+  .r21-grid{ display:none }
+  .r21-hero p{ display:none }
+
+  /* Report parallelo: nasconde dal dashboard (troppo piccolo) */
+  .dash-card:has(#report-list){ display:none }
+
+  /* Accordion: nasconde i pulsanti espandi/comprimi globali */
+  .accordion-controls{ display:none }
+  
+  /* ── Touch targets ── */
+  .seg button{
+    min-height:48px;
+    padding:12px 18px;
+    font-size:14px;
+  }
+  .toggle{ padding:16px }
+  .btn{
+    min-height:48px;
+    font-size:14px;
+    border-radius:14px;
+  }
+  input[type=range]{ height:28px }
+  .accordion-btn{ min-height:44px }
+
+  /* ── Tipografia ── */
+  .main-header h1{ font-size:clamp(22px,6vw,34px) }
+  .card-head h2{ font-size:18px }
+
+  /* ── Griglia percorsi: 2 colonne ── */
+  .path-grid{ grid-template-columns:1fr 1fr!important }
+  .path-card{ min-height:110px }
+
+  /* ── Dashboard compatto ── */
+  .dash-counter-wrap{
+    padding:16px 14px 14px;
+    border-radius:24px;
+  }
+  .dash-counter-title{
+    font-size:12px;
+    letter-spacing:1px;
+    margin:12px 0 14px;
+  }
+  .flip-box{ min-height:62px; border-width:5px }
+  .sf-static,.sf-top-cover,.sf-bot-cover{
+    font-size:36px;
+    letter-spacing:2px;
+  }
+  .flip-num{ height:50px!important }
+  .flip-lbl{ font-size:13px }
+  .zero-num{ font-size:30px }
+
+  /* ── Numeri Rete 21 su 2 colonne ── */
+  .r21-numbers{ grid-template-columns:1fr 1fr }
+
+  /* ── Bottoni azioni: stack verticale ── */
+  .actions{ flex-direction:column }
+  .actions .btn{ width:100% }
+}
+
+/* Sotto 400px: griglia percorsi torna 1 colonna */
+@media(max-width:400px){
+  .path-grid{ grid-template-columns:1fr!important }
+}
+
+/* ===== vp99 — Cruscotto top fisso SOLO su mobile (smartphone ≤780px) ===== */
+
+/* Struttura comune */
+.cruscotto-badge-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+
+/* ── Mobile + split-screen (≤1099px): cruscotto fisso, tutto il resto scorre ── */
+@media(max-width:1099px){
+  html{height:100%;overflow:hidden}
+  body{height:100%;display:flex;flex-direction:column;overflow:hidden}
+  #cruscotto-top{
+    flex-shrink:0;background:#fff;
+    border-bottom:4px solid var(--verde);
+    box-shadow:0 2px 12px rgba(65,71,69,.12);
+    z-index:200;
+  }
+  .cruscotto-bar{background:#fff}
+  .cruscotto-bar-inner{
+    max-width:none;padding:8px 14px 10px;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+  }
+  .cruscotto-bar-label{display:none}
+  /* A — rimuovi cerchi angolari (rivetti) */
+  #cruscotto-top .dash-counter-wrap{
+    margin:0;width:100%;
+    padding:10px 16px 8px;
+    border-radius:20px;border-width:5px;
+    background:
+      linear-gradient(90deg,rgba(39,174,96,.45) 0%,rgba(39,174,96,.20) 18%,rgba(245,246,243,.72) 35%,rgba(222,223,220,.96) 100%),
+      #e5e5e2;
+    box-shadow:
+      inset 0 0 0 4px rgba(255,255,255,.66),
+      inset 0 14px 22px rgba(255,255,255,.50),
+      inset 0 -8px 12px rgba(65,71,69,.12),
+      0 10px 22px rgba(65,71,69,.18);
+    pointer-events:none;
+  }
+  /* B — titolo su una sola riga, larghezza piena */
+  #cruscotto-top .dash-counter-title{
+    font-size:10px;letter-spacing:1.4px;
+    margin:0 0 8px;
+    white-space:nowrap;width:100%;text-align:center;
+  }
+  /* C — numeri molto più larghi (tripla larghezza box) */
+  #cruscotto-top .dash-counter-units{
+    max-width:none;width:100%;gap:20px;
+    grid-template-columns:1.18fr .82fr;
+  }
+  #cruscotto-top .flip-box{
+    min-height:70px;min-width:110px;
+    border-width:6px;border-radius:12px;padding:7px 18px;
+  }
+  #cruscotto-top .flip-num{height:56px!important}
+  #cruscotto-top .sf-static,
+  #cruscotto-top .sf-top-cover,
+  #cruscotto-top .sf-bot-cover{font-size:42px;letter-spacing:4px}
+  #cruscotto-top .flip-lbl{font-size:14px;letter-spacing:1px}
+  #cruscotto-top .dash-delay-note{display:none}
+  #cruscotto-top .dash-trend-legend{display:none}
+  /* Badge: larghezza piena su riga propria, separata dal counter */
+  .cruscotto-badge-wrap{flex-direction:column;align-items:stretch;gap:6px;width:100%;margin-top:10px}
+  #cruscotto-top .zero-badge{font-size:14px;padding:10px 12px;border-radius:10px;margin:0;line-height:1.1;width:100%;text-align:center;display:block;box-sizing:border-box}
+  #cruscotto-top .zero-total{font-size:11px;font-weight:700;padding:5px 8px;border-radius:7px;background:#f5f5f3;color:var(--grigio-scuro);margin:0;text-align:center}
+  #cruscotto-top .dash-text{font-size:11px;line-height:1.4;color:var(--grigio-medio);margin:0;text-align:center}
+  /* Area scrollabile */
+  #page-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+  /* Layout mobile: colonna singola */
+  .layout{display:flex!important;flex-direction:column;gap:18px}
+  .dashboard{order:0!important;position:static!important}
+  main.stack{order:0!important}
+}
+
+/* ── Desktop pieno ≥1100px: due colonne, sidebar sticky ── */
+@media(min-width:1100px){
+  html{height:auto!important;overflow:auto!important}
+  body{height:auto!important;display:block!important;overflow:visible!important}
+  .cruscotto-bar{display:none!important}
+  #page-scroll{overflow:visible!important;height:auto!important;flex:none!important}
+  .layout{display:grid!important;grid-template-columns:minmax(0,1fr) 390px!important;align-items:start!important}
+  .dashboard{order:0!important;position:sticky!important;top:18px!important;display:grid!important;gap:16px!important}
+  main.stack{order:0!important}
+  #dash-moveable{display:block}
+  #dash-moveable .cruscotto-badge-wrap{flex-direction:column;align-items:flex-start;gap:0}
+  #dash-moveable .zero-badge{font-size:24px;padding:16px;border-radius:18px;margin-top:14px;line-height:1.05;letter-spacing:-.4px;font-weight:900;display:block;background:var(--verde);color:#fff;text-align:center}
+  #dash-moveable .zero-total{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f5f5f3;font-size:13px;color:var(--grigio-scuro);font-weight:700;text-align:center}
+  #dash-moveable .dash-text{margin-top:12px;color:var(--grigio-scuro);font-size:14px;line-height:1.55}
+}
+
+/* vp99 — Segnale visivo "aggiornamento in attesa" (0→1 s): fondino ambra */
+.dash-counter-wrap{
+  transition:border-color .35s ease, background .35s ease;
+}
+/* Desktop sidebar: cambia bordo (il background complesso resta) */
+.dash-counter-wrap.counter-pending{
+  border-color:#c07a0a!important;
+  box-shadow:
+    inset 0 0 0 5px rgba(255,255,255,.66),
+    inset 0 0 0 8px rgba(65,71,69,.10),
+    inset 0 18px 28px rgba(255,255,255,.50),
+    inset 0 -10px 16px rgba(65,71,69,.12),
+    0 14px 28px rgba(65,71,69,.18),
+    0 0 0 3px rgba(192,122,10,.28)!important;
+}
+/* Mobile (sfondo semplice: override completo) */
+#cruscotto-top .dash-counter-wrap.counter-pending{
+  background:
+    linear-gradient(90deg,rgba(192,122,10,.52) 0%,rgba(192,122,10,.22) 20%,rgba(245,246,243,.72) 36%,rgba(222,223,220,.96) 100%),
+    #e8e2d8!important;
+  border-color:#c07a0a!important;
+}
+
+/* ===== vp100 — Pulsante info "i" e popover ===== */
+.info-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--grigio-medio);background:#fff;color:var(--grigio-medio);font-size:11px;font-weight:700;font-style:italic;font-family:Georgia,serif;cursor:pointer;line-height:1;flex-shrink:0;transition:background .15s,color .15s,border-color .15s;padding:0;vertical-align:middle;position:relative;top:-1px}
+.info-btn:hover{background:var(--grigio-scuro);color:#fff;border-color:var(--grigio-scuro)}
+#info-overlay{display:none;position:fixed;inset:0;z-index:9899;background:rgba(65,71,69,.22)}
+#info-overlay.visible{display:block}
+#info-popover{position:fixed;z-index:9900;max-width:380px;width:calc(100vw - 32px);background:#fff;border:1px solid var(--grigio-bordo);border-radius:16px;box-shadow:0 8px 32px rgba(65,71,69,.20);padding:18px;font-size:13px;line-height:1.6;color:var(--grigio-scuro);display:none;top:50%;left:50%;transform:translate(-50%,-50%)}
+#info-popover.visible{display:block}
+.info-pop-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--grigio-bordo)}
+.info-pop-head strong{font-size:14px;font-weight:800;color:var(--grigio-scuro);line-height:1.25}
+.info-close{appearance:none;border:none;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--grigio-medio);padding:0;flex-shrink:0}
+.info-close:hover{color:var(--grigio-scuro)}
+/* ===== vp101 — promo message cruscotto ===== */
+.dash-promo-msg{margin-top:14px;background:#f7f9e6;border:1.5px solid #c5c96a;border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--grigio-scuro)}
+.dpm-intro{display:block;margin-bottom:8px}
+.dpm-intro strong{font-weight:900;color:var(--grigio-scuro)}
+.dpm-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.dpm-item{background:#fff;border:1.5px solid #c5c96a;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:800;color:var(--grigio-scuro);letter-spacing:.2px}
+.dash-promo-msg.state-warn{background:#fff3e0;border-color:#e0a020}
+.dash-promo-msg.state-warn .dpm-intro{color:#7a4500}
+.dash-promo-msg.state-off{background:#f5f5f3;border-color:#dcddd9}
+@media(max-width:1099px){.dash-promo-msg{font-size:12px;padding:11px 13px;border-radius:11px}.dpm-item{font-size:10px;padding:3px 9px}}
+/* ===== vp102 — path-chosen restyling ===== */
+/* Nasconde strip ridondante quando percorso già scelto */
+.path-grid.path-chosen ~ .profile-strip{display:none}
+/* Card scelta: tutta larghezza, orizzontale, non pointer */
+.path-grid.path-chosen .path-card.active{cursor:default;box-shadow:0 0 0 3px rgba(181,187,0,.25)}
+/* Bottone Cambia Percorso: più prominente */
+.btn-change-path{
+  display:block;width:100%;margin-top:12px;padding:11px 18px;
+  font-size:13px;font-weight:900;border-radius:12px;
+  background:#f7f9e6;border:1.5px solid var(--r21-green);
+  color:var(--r21-green-dark);cursor:pointer;text-align:center;
+  transition:background .18s,color .18s;letter-spacing:.3px;
+}
+.btn-change-path:hover{background:var(--r21-green);color:#fff;border-color:var(--r21-green)}
+
+  /* vp106 — pulsante Espandi/Comprimi individuale per sezione */
+  .accordion-section-btn{
+    appearance:none;
+    pointer-events:auto;
+    border:1.5px solid var(--r21-green);
+    background:#fff;
+    color:var(--r21-green-dark);
+    border-radius:4px;
+    padding:5px 10px;
+    font-family:inherit;
+    font-size:10.5px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+    cursor:pointer;
+    transition:background .15s,color .15s;
+    white-space:nowrap;
+    pointer-events:all;
+  }
+  .accordion-section-btn:hover{background:#f7f9e6}
+  .accordion-section.collapsed .accordion-section-btn{color:var(--r21-green-dark)}
+  .accordion-section:not(.collapsed) .accordion-section-btn{background:#f7f9e6}
+
+</style>
+</head>
+<body>
+<div id="info-overlay" onclick="closeInfo()"></div>
+<div id="info-popover" role="dialog" aria-modal="true">
+  <div class="info-pop-head"><strong id="info-pop-title"></strong><button type="button" class="info-close" onclick="closeInfo()" aria-label="Chiudi">×</button></div>
+  <div id="info-pop-body"></div>
+</div>
+
+<div id="cruscotto-top">
+<div class="topbar"><strong>RETE 21 · Configuratore semplificato <b class="ver-tag" style="font-weight:700;opacity:.75;font-size:12px;margin-left:4px">vp110</b></strong><span>Stima orientativa del punto di pareggio della rata</span></div>
+<div class="cruscotto-bar">
+  <div class="cruscotto-bar-inner">
+    <div class="cruscotto-bar-label">Il cruscotto calcola per quanti anni la tua rata è neutra: Rata 0€. Poi guadagni</div>
+    <div id="dash-moveable">
+    <div class="dash-counter-wrap" id="dash-counter-wrap">
+      <div class="dash-counter-title" id="rata-coperta-in">RATA 0€</div>
+      <div class="dash-counter-units">
+        <div class="flip-cell"><div class="flip-box"><div class="flip-num" id="dash-years">—</div></div><div class="flip-lbl">Anni</div></div>
+        <div class="flip-cell"><div class="flip-box"><div class="flip-num" id="dash-months">—</div></div><div class="flip-lbl">Mesi</div></div>
+      </div>
+      <div class="dash-delay-note" id="dash-delay-note">Risultato in tempo reale</div>
+      <div class="dash-trend-legend"><div class="trend-pill down">↓ diminuisce</div><div class="trend-pill up">↑ aumenta</div></div>
+    </div>
+    <div id="dash-promo-msg" class="dash-promo-msg"><span class="dpm-intro">Calcolo in corso…</span></div>
+    <div style="display:none" aria-hidden="true">
+      <div class="zero-badge" id="dash-badge"></div>
+      <div class="zero-total" id="dash-total-months"></div>
+      <div class="dash-text" id="dash-message"></div>
+    </div>
+    </div><!-- /#dash-moveable -->
+  </div>
+</div>
+</div><!-- /#cruscotto-top -->
+<div id="page-scroll">
+<header class="main-header">
+  <div class="inner">
+    <div>
+      <div class="brand">Versione semplificata <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Versione semplificata','Scegli il percorso, compila poche righe e regola fotovoltaico e accumulo. Tutto resta focalizzato sul punto di pareggio della rateizzazione: l\'obiettivo è rendere evidente quando l\'uscita mensile del cliente può azzerarsi.')" aria-label="Info">i</button></div>
+      <h1>Sei percorsi, una sola domanda: per quanti anni la rata sta a 0€ e poi guadagno?</h1>
+    </div>
+  </div>
+</header>
+<section class="path-section" id="percorsi">
+  <div class="path-inner">
+    <div class="path-title">
+      <div>
+        <h2>Scegli il percorso <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Scegli il percorso','I sei percorsi sono quelli del configuratore completo: Casa privata, Condominio, Azienda/Commerciale, Hotel/Hospitality, Ospedaliero e Produttore. La compilazione resta volutamente ridotta.')" aria-label="Info">i</button></h2>
+      </div>
+    </div>
+    <div class="path-grid" id="path-grid">
+      <button type="button" class="path-card active" data-path="casa" onclick="selectPath('casa')">
+        <div class="path-icon">🏠</div>
+        <div class="path-name">Casa privata</div>
+        <div class="path-feat">FV · RID · CER · CT3.0 · Det. 50% · ISEE · REN 2026</div>
+      </button>
+      <button type="button" class="path-card" data-path="condo" onclick="selectPath('condo')">
+        <div class="path-icon">🏢</div>
+        <div class="path-name">Condominio</div>
+        <div class="path-feat">FV · GAC · CER · CT3.0 · Det. 50%</div>
+      </button>
+      <button type="button" class="path-card" data-path="azienda" onclick="selectPath('azienda')">
+        <div class="path-icon">🏭</div>
+        <div class="path-name">Azienda / Commerciale</div>
+        <div class="path-feat">FV · RID · CER · CT3.0 · Ded. IRES+IRAP</div>
+      </button>
+      <button type="button" class="path-card" data-path="hotel" onclick="selectPath('hotel')">
+        <div class="path-icon">🏨</div>
+        <div class="path-name">Hotel / Hospitality</div>
+        <div class="path-feat">FV · RID · CER · CT3.0 · ACS · Ded. IRES+IRAP</div>
+      </button>
+      <button type="button" class="path-card" data-path="complesso" onclick="selectPath('complesso')">
+        <div class="path-icon">🏗️</div>
+        <div class="path-name">Complesso Multiproprietà</div>
+        <div class="path-feat">GAC · FV · RID · CER · CT3.0 · Iperammort. 2026</div>
+      </button>
+      <button type="button" class="path-card" data-path="produttore" onclick="selectPath('produttore')">
+        <div class="path-icon">⚡</div>
+        <div class="path-name">Produttore</div>
+        <div class="path-feat">FV · RID · CER · Incentivo GSE 20 anni</div>
+      </button>
+    </div>
+    <div class="profile-strip"><strong id="profile-strip-title">Percorso attivo: Casa privata <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Percorso attivo','Compilazione minima: città, superficie, isolamento, persone conviventi, fotovoltaico e accumulo. Il cruscotto calcola il punto in cui la rata può andare a 0€. Il parametro ISEE è attivabile nella sezione Dati iniziali.')" aria-label="Info">i</button></strong><span id="profile-strip-text" style="display:none"></span></div>
+    <button type="button" class="btn-change-path" id="btn-change-path" onclick="showAllPaths()" style="display:none">↩ Cambia Percorso</button></div>
+</section>
+<div class="wrap">
+  <div class="layout">
+    <main class="stack">
+      <div class="accordion-controls" id="accordion-controls"><button type="button" class="accordion-btn" onclick="expandAllSections()">▼ Espandi tutto</button><button type="button" class="accordion-btn" onclick="collapseAllSections()">▲ Comprimi tutto</button></div>
+      <div class="area-type-legend" aria-label="Legenda tipologia aree"><div class="area-type-card compilabile"><div class="dot"></div><div><strong>Compilabile <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Compilabile','Dati che il proponente deve inserire o confermare.')" aria-label="Info">i</button></strong></div></div><div class="area-type-card proposto"><div class="dot"></div><div><strong>Proposto ma variabile <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Proposto ma variabile','Valori generati dal configuratore e modificabili.')" aria-label="Info">i</button></strong></div></div><div class="area-type-card nonvariabile"><div class="dot"></div><div><strong>Non variabile <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Non variabile','Risultati, riepiloghi o messaggi calcolati automaticamente.')" aria-label="Info">i</button></strong></div></div></div>
+      <section class="card">
+        <div class="card-head">
+          <div class="step"><div class="step-num">1</div><h2 id="dati-title">Dati iniziali</h2></div>
+          <div class="accordion-right"><button type="button" id="secbtn-0" class="accordion-section-btn" onclick="event.stopPropagation();toggleAccordionSection(0)">▼ Espandi</button><span class="accordion-pill"><span class="accordion-meta type-compilabile">Compilabile</span><span class="accordion-arrow">▼</span></span></div>
+          <p id="dati-subtitle">Le poche informazioni minime per stimare consumi energetici, zona climatica e taglia dell'intervento.</p>
+        </div>
+        <div class="card-body">
+          <div class="field-legend"><div class="legend-chip required"><div class="legend-mark"></div><div><strong>Campi da compilare</strong><span>Questi campi sono la base della simulazione: vanno valorizzati per ottenere proiezioni corrette.</span></div></div><div class="legend-chip proposed"><div class="legend-mark"></div><div><strong>Campi proposti ma modificabili</strong><span>Questi valori vengono suggeriti automaticamente dal configuratore, ma puoi cambiarli quando hai dati reali o esigenze diverse.</span></div></div></div>
+          <div class="grid-2">
+            <div class="range-wrap field-accent required-field">
+              <div class="field-topline"><label for="mq" id="mq-label">Metri quadri abitazione <span class="required-star">*</span></label><span class="field-badge required">Da compilare</span></div>
+              <div class="range-head"><input id="mq" type="range" min="50" max="350" step="5" value="120" oninput="recalc()"><div class="range-value"><span id="mq-val">120</span> <small>m²</small></div></div>
+              <div class="hint" id="mq-hint">Superficie indicativa della casa riscaldata.</div>
+            </div>
+            <div class="field autocomplete-field field-accent required-field">
+              <div class="field-topline"><label for="city-input">Città / Comune di installazione <span class="required-star">*</span> <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Città / Comune','La città genera la zona climatica e modula il fabbisogno in riscaldamento e raffrescamento. Riscaldamento medio-alto, raffrescamento moderato. Il calcolo modula separatamente riscaldamento e raffrescamento. Il codice stampa sarà composto da nome + data + ora.')" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
+              <input class="text-input" id="city-input" list="city-list" value="Treviso" placeholder="es. Treviso" autocomplete="off" oninput="handleCityInput()" onfocus="showCitySuggestions()" onblur="hideCitySuggestionsSoon()">
+              <datalist id="city-list">
+                <option value="Treviso"><option value="Venezia"><option value="Padova"><option value="Vicenza"><option value="Verona"><option value="Belluno"><option value="Rovigo"><option value="Milano"><option value="Torino"><option value="Bologna"><option value="Firenze"><option value="Roma"><option value="Napoli"><option value="Bari"><option value="Palermo"><option value="Cagliari"><option value="Aosta"><option value="Bolzano"><option value="Trento"><option value="Genova"><option value="Trieste"><option value="Udine"><option value="Pordenone"><option value="Ancona"><option value="Perugia"><option value="Pescara"><option value="L'Aquila"><option value="Campobasso"><option value="Potenza"><option value="Catanzaro"><option value="Reggio Calabria">
+              </datalist>
+              <div id="city-suggestions" class="city-suggestions"></div>
+              <div class="climate-card readonly-field" id="climate-card">
+                <div class="climate-badge" id="climate-zone">E</div>
+                <div><strong id="climate-title">Zona climatica E — Treviso</strong><span id="climate-note">Riscaldamento medio-alto, raffrescamento moderato. La proposta tecnica viene modulata sulle temperature annuali del territorio.</span></div>
+              </div>
+              <div class="client-input-row optional-field">
+                <div class="field-topline"><label for="client-name">Nome cliente / riferimento per report</label><span class="field-badge">Facoltativo</span></div>
+                <input class="text-input" id="client-name" value="Cliente" placeholder="es. Rossi Mario" oninput="updateReportPreview()">
+              </div>
+            </div>
+            <div class="field field-accent required-field">
+              <div class="field-topline"><label id="isolamento-label">Cappotto termico <span class="required-star">*</span> <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Cappotto / isolamento','Il cappotto riduce il fabbisogno termico e permette di installare una pompa di calore più piccola con un volano più contenuto: l\'investimento scende. Ma scende anche il risparmio annuo, perché la bolletta del gas da eliminare era già più bassa. I due effetti si compensano e il punto di pareggio resta simile. Il vantaggio del cappotto si vede nell\'impianto più piccolo e nei consumi ridotti, non nei mesi di rata.')" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
+              <div class="seg" id="cappotto-seg">
+                <button type="button" class="active" onclick="setCappotto(true,this)">Sì</button>
+                <button type="button" onclick="setCappotto(false,this)">No</button>
+              </div>
+            </div>
+            <div class="range-wrap field-accent required-field">
+              <div class="field-topline"><label for="persone" id="persone-label">Persone conviventi <span class="required-star">*</span> <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Persone conviventi','Serve per stimare usi domestici e acqua calda sanitaria.')" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
+              <div class="range-head"><input id="persone" type="range" min="1" max="8" step="1" value="2" oninput="recalc()"><div class="range-value"><span id="persone-val">2</span> <small id="persone-unit">persone</small></div></div>
+            </div>
+
+          </div>
+          <div id="isee-field" style="margin-top:14px;display:none">
+            <div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;color:var(--grigio-scuro);margin-bottom:10px;padding-left:2px">Situazione ISEE del nucleo familiare</div>
+            <div class="grid-2">
+              <div class="field field-accent required-field" id="isee-card-base">
+                <div class="field-topline"><label>ISEE inferiore a 15.000 € <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('ISEE &lt; 15.000 €','Conto Termico 3.0 al 55%. Reddito Energetico Nazionale 2026 attivo: l\'impianto fotovoltaico viene realizzato gratuitamente — il costo FV viene escluso dal calcolo della rata.')" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
+                <div class="seg">
+                  <button type="button" id="isee-base-si" onclick="setIsee(1,this,'base')">Sì</button>
+                  <button type="button" id="isee-base-no" class="active" onclick="setIsee(0,this,'base')">No</button>
+                </div>
+              </div>
+              <div class="field field-accent required-field" id="isee-card-num">
+                <div class="field-topline"><label>ISEE inferiore a 30.000 € con 4+ figli a carico <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('ISEE &lt; 30.000 € con 4+ figli','Conto Termico 3.0 al 65%. Reddito Energetico Nazionale 2026 attivo: l\'impianto fotovoltaico viene realizzato gratuitamente — il costo FV viene escluso dal calcolo della rata. Le due condizioni ISEE sono alternative: attivarne una disattiva l\'altra.')" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
+                <div class="seg">
+                  <button type="button" id="isee-num-si" onclick="setIsee(2,this,'num')">Sì</button>
+                  <button type="button" id="isee-num-no" class="active" onclick="setIsee(0,this,'num')">No</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-head">
+          <div class="step"><div class="step-num">2</div><h2>Sistema proposto</h2></div>
+          <div class="accordion-right"><button type="button" id="secbtn-1" class="accordion-section-btn" onclick="event.stopPropagation();toggleAccordionSection(1)">▼ Espandi</button><span class="accordion-pill"><span class="accordion-meta type-proposto">Proposto variabile</span><span class="accordion-arrow">▼</span></span></div>
+          <p id="sistema-subtitle">Pompa di calore e bollitore vengono suggeriti automaticamente. Puoi regolare fotovoltaico e batterie.</p>
+        </div>
+        <div class="card-body">
+          <div class="field-legend"><div class="legend-chip proposed"><div class="legend-mark"></div><div><strong>Sistema proposto</strong><span>Il configuratore propone automaticamente componenti e valori iniziali. Puoi comunque correggerli se hai bollette, sopralluogo o dati di progetto.</span></div></div></div>
+          <div class="included-grid">
+            <div class="included proposed-field"><strong id="included-1-title">Pompa di calore <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Fabbisogno + impianto termico','Dimensionata automaticamente in funzione del percorso, della superficie e dell\'isolamento.')" aria-label="Info">i</button></strong><span id="included-1-text" style="display:none"></span></div>
+          </div>
+          <div class="fabbisogno-box" id="fabbisogno-box">
+            <div class="fb-title">Fabbisogno energetico edificio — proiezione modificabile</div>
+            <div class="fabbisogno-main">
+              <div class="fabbisogno-kpi readonly-field">
+                <div class="big" id="fabbisogno-stimato">—</div>
+                <div class="small" id="fabbisogno-stimato-note">Stimato da dimensioni edificio, isolamento e profilo d'uso.</div>
+              </div>
+              <div class="range-wrap field-accent proposed-field">
+                <div class="field-topline"><label for="fabbisogno-adjust">Correzione manuale fabbisogno <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Correzione manuale fabbisogno','Usalo quando bollette, sopralluogo o dati reali indicano un edificio più efficiente o più energivoro della stima automatica.')" aria-label="Info">i</button></label><span class="field-badge proposed">Proposto / modificabile</span></div>
+                <div class="range-head"><input id="fabbisogno-adjust" type="range" min="-30" max="40" step="5" value="0" oninput="markThermalManual()"><div class="range-value"><span id="fabbisogno-adjust-val">0</span> <small>%</small></div></div>
+              </div>
+            </div>
+            <div class="climate-split" id="climate-split">
+              <div class="part readonly-field"><div class="v" id="heating-need">—</div><div class="l">Riscaldamento stimato</div></div>
+              <div class="part readonly-field"><div class="v" id="cooling-need">—</div><div class="l">Raffrescamento stimato</div></div>
+            </div>
+          </div>
+          <div class="thermal-proposal" id="thermal-proposal">
+            <div class="thermal-head">
+              <div>
+                <div class="title" id="thermal-proposal-title">Configurazione termica proposta <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Configurazione termica proposta','La proposta include pompa di calore, bollitore ACS e volano termico. La sostituzione della caldaia fossile è suggerita come opzione da confermare per attivare il Conto Termico 3.0.')" aria-label="Info">i</button></div>
+                
+              </div>
+              <div class="thermal-actions" id="thermal-actions"><div class="thermal-badge" id="thermal-status-badge">Proposta automatica <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Proposta automatica','Valori calcolati da superficie, città/zona climatica, isolamento, persone/unità e profilo del percorso, con valori interni derivati dal listino. Puoi variare i cursori e vedere subito l\'effetto sul pareggio.')" aria-label="Info">i</button></div><button type="button" class="btn-reset-proposed" id="thermal-reset-btn" onclick="resetProposedData()">Ripristina dati proposti</button></div>
+            </div>
+            <div class="thermal-grid" id="thermal-grid">
+              <div class="thermal-card" id="card-caldaia">
+                <div class="thermal-card-toprow">
+                  <strong>Elimina caldaia fossile <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Sostituzione caldaia fossile','Scegli tra abbandono fossile completo (solo pompa di calore, prima scelta) o sistema ibrido (pompa di calore + nuova caldaia a condensazione come riserva). In entrambi i casi il Conto Termico 3.0 GSE è attivo. Il sistema ibrido aumenta l’investimento ma amplia la base CT3.0.')" aria-label="Info">i</button></strong>
+                  <div class="topline-right-group">
+                    <span class="cs-badge">✦ Suggerito</span>
+                  </div>
+                </div>
+                <p class="caldaia-mode-hint">Come gestire la caldaia fossile esistente:</p>
+                <div class="caldaia-mode-wrap">
+                  <div class="caldaia-mode-active-row">
+                    <span class="caldaia-mode-active-pill" id="caldaia-mode-active-label">&#9851; Abbandono fossile</span>
+                  </div>
+                  <div class="caldaia-mode-seg" id="caldaia-mode-seg">
+                    <button type="button" class="active" id="caldaia-mode-abbandono" onclick="setCaldaiaMode('abbandono',this)">&#9851; Abbandono fossile</button>
+                    <button type="button" id="caldaia-mode-ibrido" onclick="setCaldaiaMode('ibrido',this)">+ Caldaia a condensazione</button>
+                  </div>
+                </div>
+                <div class="caldaia-ct-note" id="caldaia-ct-note" style="display:none"></div>
+                <div class="caldaia-slider-wrap" id="caldaia-slider-wrap">
+                  <div class="range-head"><input id="thermal-caldaia-kw" type="range" min="0" max="300" step="5" value="0" oninput="markThermalManual()"><div class="range-value"><span id="thermal-caldaia-val">0</span> <small>kWt</small></div></div>
+                </div>
+              </div>
+              <div class="thermal-card proposed-field" id="card-pdc">
+                <strong>Pompa di calore <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Pompa di calore','Quota rinnovabile principale della riconversione termica.')" aria-label="Info">i</button></strong>
+                <div class="range-head"><input id="thermal-pdc-kw" type="range" min="0" max="300" step="5" value="0" oninput="markThermalManual()"><div class="range-value"><span id="thermal-pdc-val">0</span> <small>kWt</small></div></div>
+              </div>
+              <div class="thermal-card proposed-field" id="card-bollitore">
+                <strong>Bollitore ACS <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Bollitore','Accumulo per acqua calda sanitaria, dimensionato sul profilo d\'uso.')" aria-label="Info">i</button></strong>
+                <div class="range-head"><input id="thermal-bollitore-l" type="range" min="0" max="3000" step="50" value="0" oninput="markThermalManual()"><div class="range-value"><span id="thermal-bollitore-val">0</span> <small>L</small></div></div>
+              </div>
+              <div class="thermal-card proposed-field" id="card-volano">
+                <strong>Volano termico <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Volano termico','Accumulo inerziale per stabilizzare la distribuzione del calore.')" aria-label="Info">i</button></strong>
+                <div class="range-head"><input id="thermal-volano-l" type="range" min="0" max="3000" step="50" value="0" oninput="markThermalManual()"><div class="range-value"><span id="thermal-volano-val">0</span> <small>L</small></div></div>
+              </div>
+            </div>
+            
+          </div>
+          <div class="grid-2">
+            <div class="range-wrap field-accent proposed-field">
+              <div class="field-topline"><label for="fv-kwp">Fotovoltaico <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Fotovoltaico','Aumentando il fotovoltaico cresce l\'energia disponibile per autoconsumo, RID e CER/GAC.')" aria-label="Info">i</button></label><span class="field-badge proposed">Proposto / modificabile</span></div>
+              <div class="range-head"><input id="fv-kwp" type="range" min="3" max="20" step="0.5" value="6" oninput="recalc()"><div class="range-value"><span id="fv-val">6</span> <small>kWp</small></div></div>
+            </div>
+            <div class="range-wrap field-accent proposed-field">
+              <div class="field-topline"><label for="batt-kwh">Batterie / accumulo <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Batterie / accumulo','Aumentando l\'accumulo aumenta l\'autoconsumo stimato e può migliorare il pareggio.')" aria-label="Info">i</button></label><span class="field-badge proposed">Proposto / modificabile</span></div>
+              <div class="range-head"><input id="batt-kwh" type="range" min="0" max="30" step="1" value="0" oninput="recalc()"><div class="range-value"><span id="batt-val">0</span> <small>kWh</small></div></div>
+            </div>
+          </div>
+
+          <div class="fabbisogno-box" id="fv-proiezione-box" style="margin-top:16px">
+            <div class="fb-title">Proiezione produzione fotovoltaica</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:10px" id="fv-proj-grid">
+              <div class="fabbisogno-kpi readonly-field" style="text-align:center">
+                <div class="big" id="fv-proj-tot">—</div>
+                <div class="small">MWh/anno<br>Produzione totale stimata</div>
+              </div>
+              <div class="fabbisogno-kpi readonly-field" style="text-align:center">
+                <div class="big" id="fv-proj-auto">—</div>
+                <div class="small">MWh/anno<br>Autoconsumo diretto</div>
+              </div>
+              <div class="fabbisogno-kpi readonly-field" style="text-align:center">
+                <div class="big" id="fv-proj-cer">—</div>
+                <div class="small">MWh/anno<br>Condivisa GAC / CER</div>
+              </div>
+              <div class="fabbisogno-kpi readonly-field" style="text-align:center">
+                <div class="big" id="fv-proj-rid">—</div>
+                <div class="small">MWh/anno<br>Immessa rete (RID)</div>
+              </div>
+            </div>
+          </div>
+          <div class="reset-proposal-row" id="proposal-reset-row"><div><strong>Configurazione variata rispetto alla proposta del percorso.</strong><br><span>Ripristina solo i dati tecnici proposti, mantenendo percorso, città, superficie e risposte iniziali.</span></div><button type="button" class="btn-reset-proposed" onclick="resetProposedData()">Ripristina dati proposti</button></div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-head">
+          <div class="step"><div class="step-num">3</div><h2 id="mobilita-title">Auto elettrica</h2></div>
+          <div class="accordion-right"><button type="button" id="secbtn-2" class="accordion-section-btn" onclick="event.stopPropagation();toggleAccordionSection(2)">▼ Espandi</button><span class="accordion-pill"><span class="accordion-meta type-proposto">Proposto variabile</span><span class="accordion-arrow">▼</span></span></div>
+          <p id="mobilita-subtitle">Se presente, valorizza i consumi elettrici e il risparmio annuale generato.</p>
+        </div>
+        <div class="card-body">
+          <div class="toggle-list field-accent proposed-field" style="margin-bottom:16px">
+            <div class="toggle" id="tg-ev" onclick="toggleSetting('ev', this)">
+              <div class="toggle-text"><strong id="ev-toggle-title">Simula auto elettrica <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Auto elettrica','Attiva il calcolo dei consumi aggiuntivi e dell\'energia autoconsumabile. Viene considerata solo quando la simulazione mobilità è attiva.')" aria-label="Info">i</button></strong><span id="ev-toggle-text"></span></div>
+              <div class="switch"></div>
+            </div>
+          </div>
+          <div class="range-wrap field-accent proposed-field">
+            <div class="field-topline"><label for="km-ev" id="km-ev-label">Percorrenza auto annua</label><span class="field-badge proposed">Variabile</span></div>
+            <div class="range-head"><input id="km-ev" type="range" min="5000" max="35000" step="1000" value="12000" oninput="recalc()"><div class="range-value"><span id="km-ev-val">12.000</span> <small>km/anno</small></div></div>
+          </div>
+          <div class="mobility-extra" id="azienda-mobility-extra">
+            <div class="mobility-extra-title">Azienda — ricariche e flotta elettrica</div>
+            <div class="mobility-grid">
+              <div class="mob-card">
+                <strong>Colonnine private con card</strong>
+                <div class="hint">Ricariche riservate a dipendenti, mezzi interni o utenti autorizzati tramite card/RFID.</div>
+                <div class="range-head"><input id="az-col-private" type="range" min="0" max="20" step="1" value="2" oninput="recalc()"><div class="range-value"><span id="az-col-private-val">2</span> <small>col.</small></div></div>
+                <div class="mob-value">Valorizzazione: <span id="az-private-value">—</span></div>
+              </div>
+              <div class="mob-card public">
+                <strong>Colonnine pubbliche</strong>
+                <div class="hint">Ricariche aperte a clienti, fornitori o pubblico, con energia valorizzata come servizio.</div>
+                <div class="range-head"><input id="az-col-public" type="range" min="0" max="20" step="1" value="1" oninput="recalc()"><div class="range-value"><span id="az-col-public-val">1</span> <small>col.</small></div></div>
+                <div class="mob-value">Valorizzazione: <span id="az-public-value">—</span></div>
+              </div>
+              <div class="mob-card fleet">
+                <strong>Automezzi elettrici aziendali</strong>
+                <div class="hint">Furgoni, auto aziendali o mezzi di servizio alimentati con energia prodotta dall'impianto.</div>
+                <div class="range-head"><input id="az-fleet" type="range" min="0" max="50" step="1" value="3" oninput="recalc()"><div class="range-value"><span id="az-fleet-val">3</span> <small>mezzi</small></div></div>
+                <div class="mob-value">Valorizzazione: <span id="az-fleet-value">—</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="mobility-extra" id="hotel-mobility-extra">
+            <div class="mobility-extra-title">Hotel / Hospitality — ricarica ospiti</div>
+            <div class="mobility-grid hotel">
+              <div class="mob-card">
+                <strong>Colonnine per ospiti</strong>
+                <div class="hint">Ricarica come servizio premium per camere, ristorante, wellness e clientela esterna.</div>
+                <div class="range-head"><input id="hotel-col" type="range" min="0" max="30" step="1" value="4" oninput="recalc()"><div class="range-value"><span id="hotel-col-val">4</span> <small>col.</small></div></div>
+                <div class="mob-value">Valorizzazione: <span id="hotel-col-value">—</span></div>
+              </div>
+              <div class="mob-card public">
+                <strong>Uso prevalente</strong>
+                <div class="hint">La valorizzazione considera ricariche ospiti e visitatori, senza mostrare prezzi unitari.</div>
+                <div class="mob-value">Energia ricarica stimata: <span id="hotel-charge-kwh">—</span></div>
+                <div class="mob-value">Effetto sul pareggio: <span id="hotel-payback-effect">attivo</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-head">
+          <div class="step"><div class="step-num">4</div><h2>Incentivi attivabili / disattivabili <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Incentivi','Bonus Ristrutturazioni 50% (Art. 16-bis TUIR): copre FV e batterie. Sconto in fattura CT: il valore Conto Termico viene sottratto dalla rata. RID: valorizza l\'energia non autoconsumata. Rata: se disattivata, il cruscotto mostra il caso senza uscita mensile. Il beneficio fiscale e il CT 3.0 sono compatibili: coprono voci di costo distinte. Chiave di lettura: il cruscotto calcola la prima durata di rateizzazione in cui i benefici compensano la rata, portando l\'uscita netta del cliente a 0€.')" aria-label="Info">i</button></h2></div>
+          <div class="accordion-right"><button type="button" id="secbtn-3" class="accordion-section-btn" onclick="event.stopPropagation();toggleAccordionSection(3)">▼ Espandi</button><span class="accordion-pill"><span class="accordion-meta type-proposto">Leve variabili</span><span class="accordion-arrow">▼</span></span></div>
+          <p>Partono tutti attivi. Spegnendoli vedi come cambia il punto di pareggio della rateizzazione.</p>
+        </div>
+        <div class="card-body">
+          <div class="toggle-list field-accent proposed-field">
+            <div class="toggle on" onclick="toggleSetting('detrazione', this)"><div class="toggle-text"><strong>Bonus Ristrutturazioni 50%</strong><span></span></div><div class="switch"></div></div>
+            <div class="toggle on" onclick="toggleSetting('conto', this)"><div class="toggle-text"><strong>Conto Termico 3.0</strong><span></span></div><div class="switch"></div></div>
+            <!-- vp97 — Sconto in fattura CT: visibile solo su percorsi con termico -->
+            <div id="sconto-ct-toggle-row" style="margin:10px 0 4px;padding:12px 14px;background:#f5eef8;border:2px solid #8e44ad;border-radius:10px;display:none">
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer">
+                <input type="checkbox" id="sconto-fattura-ct-cb" onchange="toggleScontoFatturaCT()" style="width:20px;height:20px;cursor:pointer">
+                <span style="flex:1;line-height:1.4">
+                  <strong style="font-size:13px;color:#6c3483">♻️ Sconto in fattura — RETE 21 anticipa il CT</strong><br>
+                  <span style="font-size:11.5px;color:#8e44ad;font-weight:500"></span>
+                </span>
+                <span style="font-size:11px;color:#6c3483;font-weight:800;min-width:90px;text-align:right">CT stimato:<br><span id="sconto-ct-val-preview">—</span></span>
+              </label>
+              <div id="sconto-ct-nota" style="display:none;margin-top:8px;padding:7px 10px;background:#fff;border-left:3px solid #a04000;border-radius:6px;font-size:11px;color:#a04000;line-height:1.5">
+                ⚠️ CT non entra nei benefici annuali: è già stato anticipato da Rete 21 e sottratto dalla fattura.
+              </div>
+            </div>
+            <div class="toggle on" onclick="toggleSetting('rid', this)"><div class="toggle-text"><strong>RID energia immessa</strong><span></span></div><div class="switch"></div></div>
+            <div class="toggle on" onclick="toggleSetting('cer', this)"><div class="toggle-text"><strong>CER / GAC</strong><span></span></div><div class="switch"></div></div>
+            <div class="toggle" id="tg-pnrr" onclick="toggleSetting('pnrr', this)" style="display:none"><div class="toggle-text"><strong>PNRR 40% a fondo perduto — chiusura 30 giugno 2026</strong><span id="pnrr-toggle-text">Contributo GSE fino al 40% del costo impianto FV per CER e gruppi di autoconsumo in comuni &lt; 50.000 ab. Fondi residui 795,5 M€ — domande accettate solo da CER già costituite. Scadenza assegnazione 30/06/2026.</span></div><div class="switch"></div></div>
+            <!-- vp106: rata sempre attiva, toggle rimosso -->
+          </div>
+          <!-- vp96 — avviso compatibilità beneficio fiscale + CT3.0 (non bloccante, testo aggiornato dinamicamente) -->
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-head">
+          <div class="step"><div class="step-num">5</div><h2>Proiezione energetica sintetica <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Proiezione energetica sintetica','Consumi elettrici: usi domestici, pompa di calore e auto elettrica se attiva. Fabbisogno termico: dipende da metri quadri e presenza del cappotto. Produzione FV: stima annua media del fotovoltaico selezionato. Autoconsumo: aumenta con accumulo, pompa di calore e auto elettrica. Il cappotto termico pesa esplicitamente: riduce il fabbisogno di calore, migliora la pompa di calore, incide sull\'investimento e modifica il tempo di pareggio.')" aria-label="Info">i</button></h2></div>
+          <div class="accordion-right"><button type="button" id="secbtn-4" class="accordion-section-btn" onclick="event.stopPropagation();toggleAccordionSection(4)">▼ Espandi</button><span class="accordion-pill"><span class="accordion-meta type-nonvariabile">Non variabile</span><span class="accordion-arrow">▼</span></span></div>
+          <p>Una fotografia immediata del sistema proposto e dei suoi effetti.</p>
+        </div>
+        <div class="card-body">
+          <div class="grid-4">
+            <div class="kpi readonly-field"><div class="val" id="kpi-consumi">—</div><div class="lbl">Consumi elettrici post-intervento</div></div>
+            <div class="kpi readonly-field"><div class="val" id="kpi-termico">—</div><div class="lbl">Fabbisogno termico stimato</div></div>
+            <div class="kpi readonly-field"><div class="val" id="kpi-prod">—</div><div class="lbl">Produzione fotovoltaica</div></div>
+            <div class="kpi readonly-field"><div class="val" id="kpi-auto">—</div><div class="lbl">Autoconsumo stimato</div></div>
+          </div>
+        </div>
+      </section>
+      <section class="r21-section" id="perche-rete21">
+        <div class="r21-hero">
+          <div class="tag">Perché affidarsi a Rete 21</div>
+          <h2>Una rete di imprese tecniche, non un intermediario.</h2>
+          <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Perché affidarsi a Rete 21','Rete 21 mette insieme competenze elettriche, idrauliche, digitali e ingegneristiche per seguire il cliente dall\'analisi iniziale fino all\'impianto, agli incentivi e all\'ingresso in Comunità Energetica.')" aria-label="Info">i</button>
+        </div>
+        <div class="r21-body">
+          <div class="r21-numbers">
+            <div class="r21-num"><div class="big">500</div><div class="label">Addetti <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Addetti','Capacità operativa complessiva indicata per la rete.')" aria-label="Info">i</button></div></div>
+            <div class="r21-num"><div class="big">40</div><div class="label">Addetti ingegneria <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Addetti ingegneria','Presidio tecnico nelle aziende di ingegneria di rete.')" aria-label="Info">i</button></div></div>
+            <div class="r21-num"><div class="big">30</div><div class="label">Imprese socie <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Imprese socie','Aziende specializzate nelle tecnologie d\'impianto.')" aria-label="Info">i</button></div></div>
+            <div class="r21-num"><div class="big">2 MW</div><div class="label">Fotovoltaico <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Fotovoltaico Rete 21','Progettazione e realizzazione tramite partnership Rete TREVI / Enel X.')" aria-label="Info">i</button></div></div>
+          </div>
+          <div class="r21-grid">
+            <div class="r21-card"><h3>Cosa significa per il cliente <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Cosa significa per il cliente','Competenze senza intermediazioni: i clienti condividono risorse e competenze dei soci senza subappalto. Impianto chiavi in mano: dalla Comunità Energetica all\'impianto completo, con progettazione e pratiche. Conto Termico 3.0: Rete 21 segue progettazione e pratiche GSE per gli incentivi. CER / GAC: Rete 21 ti accompagna nello sviluppo e nella crescita delle comunità energetiche rinnovabili. Innovazione applicata: interazione tra imprese, formazione e mondo accademico per soluzioni tecnologiche avanzate.')" aria-label="Info">i</button></h3></div>
+            <div class="r21-card"><h3>Le competenze della rete <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Le competenze della rete','Presidio multidisciplinare: Elettrico (FV, accumulo, allarmi, videosorveglianza, controllo accessi, smart grid) — Idraulica (pompe di calore, caldaie ibride, biomassa, VMC, climatizzazione) — Reti e ingegneria (fibra, ponti radio, 5G, progettazione integrata e sicurezza) — IT (networking, cloud, backup, software, sicurezza informatica e connettività).')" aria-label="Info">i</button></h3></div>
+          </div>
+          <div class="r21-cta-strip" style="flex-direction:row;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <span style="font-size:15px;font-weight:900;line-height:1.3">Dal Conto Termico 3.0 alla Comunità Energetica: l’energia che conviene due volte <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Come funziona','Fase 1 — L\'hai fatta in autonomia: ora hai una prima indicazione concreta sulle opportunità per migliorare o riconvertire il tuo impianto energetico. Fase 2 — Confronto con un commerciale Rete 21, online o in presenza. Analizzeremo insieme le numeriche emerse e le prime soluzioni disponibili. Fase 3 — Si passa poi alla progettazione vera e propria: sopralluogo, scelta delle marche e configurazione precisa dell\'impianto.')" aria-label="Info">i</button></span>
+            <a href="https://rete21.it/contatti/" target="_blank" rel="noopener" style="white-space:nowrap;font-size:13px">Richiedi il configuratore completo</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <aside class="dashboard">
+      <!-- Cruscotto desktop: il counter viene spostato qui da adaptCounterLayout() su schermi >780px -->
+      <section class="dash-card" id="dash-card-counter">
+        <div class="dash-top">
+          <h3>Ti interessa la <strong>RATA a 0€</strong>?</h3>
+        </div>
+        <div class="dash-body" id="dash-desktop-slot">
+          <!-- dash-moveable inserito da JS -->
+        </div>
+      </section>
+      <section class="dash-card"><div class="dash-body"><h4 style="margin:0 0 12px">Leve attive</h4><div class="chips" id="dash-chips"></div></div></section>
+      <section class="dash-card"><div class="dash-body"><h4 style="margin:0 0 12px">Indicatori rapidi</h4><div class="mini-list"><div class="mini-item"><strong>Fabbisogno edificio</strong><span id="mini-fabbisogno">—</span></div><div class="mini-item"><strong>Zona climatica</strong><span id="mini-clima">—</span></div><div class="mini-item"><strong>Fotovoltaico</strong><span id="mini-fv">—</span></div><div class="mini-item" id="mini-batt-row"><strong>Accumulo batterie</strong><span id="mini-batt">—</span></div><div class="mini-item"><strong>Produzione FV stimata</strong><span id="mini-prod-fv">—</span></div><div class="mini-item"><strong id="mini-pdc-label">Pompa di calore proposta</strong><span id="mini-pdc">—</span></div><div class="mini-item" id="mini-caldaia-row"><strong>Caldaia nuova / backup</strong><span id="mini-caldaia">—</span></div><div class="mini-item"><strong id="mini-bollitore-label">Bollitore ACS proposto</strong><span id="mini-bollitore">—</span></div><div class="mini-item"><strong>Volano termico</strong><span id="mini-volano">—</span></div><div class="mini-item"><strong>Energia condivisibile</strong><span id="mini-shared">—</span></div><div class="mini-item"><strong>Contributo GAC / CER</strong><span id="mini-cer-value">—</span></div><div class="mini-item" style="display:none"><strong>Contributo PNRR 40%</strong><span id="mini-pnrr">—</span></div><div class="mini-item"><strong id="mini-ev-label">Energia mobilità</strong><span id="mini-ev-save">—</span></div></div></div></section>
+      <div style="display:none"><div class="message ok" id="commercial-msg">—</div></div>
+      <section class="dash-card"><div class="dash-body"><h4 style="margin:0 0 12px">Report parallelo</h4><div class="report-box"><div class="report-code" id="current-report-code">—</div><div class="report-help">Il report viene salvato in questo browser e può essere riaperto dall'archivio qui sotto. Codice: nome + data + ora.</div><div class="report-list" id="report-list"></div></div></div></section>
+      <section class="dash-card"><div class="dash-body"><div class="actions"><button class="btn primary" onclick="printWithReport()">Genera report + stampa</button><button class="btn alt" onclick="generateReport(true)">Genera report</button><button class="btn alt" id="dash-reset-proposed" onclick="resetProposedData()" style="display:none">Ripristina dati proposti</button><button class="btn alt" onclick="resetAll()">Reset simulazione</button></div></div></section>
+    </aside>
+  </div>
+</div>
+
+<script>
+const PROFILES={
+  casa:{name:'Casa privata',icon:'🏠',mqLabel:'Metri quadri abitazione',mqHint:'Superficie indicativa della casa riscaldata.',unitLabel:'Persone conviventi',unit:'persone',unitHint:'Serve per stimare usi domestici e acqua calda sanitaria.',mq:{min:50,max:350,step:5,value:120},units:{min:1,max:8,step:1,value:2},fv:{min:3,max:20,step:.5,value:6},batt:{min:0,max:30,step:1,value:0},prod:1150,eBase:1000,eMq:4.6,eUnit:520,tGood:42,tPoor:88,tUnit:720,capex:1,benefit:1,thermo:true,shared:.28,evLabel:'Auto elettrica'},
+  condo:{name:'Condominio',icon:'🏢',mqLabel:'Metri quadri edificio',mqHint:'Superficie complessiva riscaldata del condominio.',unitLabel:'Unità abitative',unit:'unità',unitHint:'Numero indicativo di appartamenti o POD condominiali.',mq:{min:300,max:3500,step:50,value:900},units:{min:4,max:80,step:1,value:18},fv:{min:10,max:120,step:1,value:32},batt:{min:0,max:160,step:2,value:0},prod:1120,eBase:2600,eMq:3.2,eUnit:2400,tGood:38,tPoor:75,tUnit:480,capex:.86,benefit:1.18,thermo:true,shared:.45,evLabel:'Ricariche condominiali'},
+  azienda:{name:'Azienda / Commerciale',icon:'🏭',mqLabel:'Metri quadri sede',mqHint:'Superficie operativa, uffici, laboratorio o capannone.',unitLabel:'Addetti / utenti medi',unit:'addetti',unitHint:'Serve a stimare usi elettrici e profilo giornaliero.',mq:{min:300,max:6000,step:50,value:1200},units:{min:1,max:250,step:1,value:35},fv:{min:20,max:250,step:5,value:80},batt:{min:0,max:300,step:5,value:0},prod:1100,eBase:12000,eMq:18,eUnit:450,tGood:28,tPoor:58,tUnit:120,capex:.78,benefit:1.35,thermo:true,shared:.35,evLabel:'Mobilità aziendale'},
+  hotel:{name:'Hotel / Hospitality',icon:'🏨',mqLabel:'Metri quadri struttura',mqHint:'Camere, servizi, cucina, wellness e spazi comuni.',unitLabel:'Camere / unità ricettive',unit:'camere',unitHint:'Aumenta la quota ACS e i consumi di servizio.',mq:{min:500,max:8000,step:50,value:1800},units:{min:5,max:200,step:1,value:40},fv:{min:20,max:300,step:5,value:100},batt:{min:0,max:350,step:5,value:0},prod:1120,eBase:18000,eMq:16,eUnit:820,tGood:44,tPoor:82,tUnit:980,capex:.88,benefit:1.45,thermo:true,shared:.25,evLabel:'Ricarica ospiti'},
+  complesso:{name:'Complesso Multiproprietà',icon:'🏗️',mqLabel:'Metri quadri complesso',mqHint:'Superficie complessiva incluse parti comuni e unità produttive.',unitLabel:'Unità / proprietà',unit:'unità',unitHint:'Numero di proprietà o aziende nel complesso.',mq:{min:500,max:10000,step:100,value:2000},units:{min:2,max:50,step:1,value:5},fv:{min:20,max:300,step:5,value:80},batt:{min:0,max:300,step:5,value:0},prod:1100,eBase:15000,eMq:16,eUnit:600,tGood:30,tPoor:62,tUnit:150,capex:.82,benefit:1.38,thermo:true,shared:.40,evLabel:'Mobilità / ricarica complesso'},
+  produttore:{name:'Produttore',icon:'⚡',mqLabel:'Superficie disponibile',mqHint:'Area indicativa utile per installazione FV su tetto o terreno.',unitLabel:'Cabina / configurazione',unit:'config.',unitHint:'Dato descrittivo: il motore resta focalizzato su FV, RID e CER.',mq:{min:1000,max:50000,step:500,value:8000},units:{min:1,max:10,step:1,value:1},fv:{min:50,max:1000,step:10,value:500},batt:{min:0,max:1000,step:10,value:0},prod:1150,eBase:0,eMq:0,eUnit:0,tGood:0,tPoor:0,tUnit:0,capex:.72,benefit:1.75,thermo:false,shared:.62,evLabel:'Servizi di ricarica'}
+};
+const CLIMATE_DEFAULT={city:'Treviso',zone:'E',heating:1.12,cooling:.90,prod:.96,label:'Riscaldamento medio-alto, raffrescamento moderato.'};
+const CLIMATE_BY_CITY={
+  'aosta':{zone:'E',heating:1.18,cooling:.82,prod:.94,label:'Inverni rigidi, raffrescamento contenuto.'},
+  'bolzano':{zone:'E',heating:1.20,cooling:.78,prod:.94,label:'Inverni rigidi, raffrescamento contenuto.'},
+  'trento':{zone:'E',heating:1.16,cooling:.82,prod:.95,label:'Riscaldamento alto, raffrescamento contenuto.'},
+  'belluno':{zone:'F',heating:1.30,cooling:.72,prod:.92,label:'Zona fredda: priorità al riscaldamento e al dimensionamento invernale.'},
+  'treviso':{zone:'E',heating:1.12,cooling:.90,prod:.96,label:'Riscaldamento medio-alto, raffrescamento moderato.'},
+  'venezia':{zone:'E',heating:1.08,cooling:.94,prod:.97,label:'Riscaldamento medio-alto, raffrescamento estivo da considerare.'},
+  'padova':{zone:'E',heating:1.10,cooling:.96,prod:.97,label:'Riscaldamento medio-alto, raffrescamento estivo significativo.'},
+  'vicenza':{zone:'E',heating:1.11,cooling:.94,prod:.97,label:'Riscaldamento medio-alto, raffrescamento moderato.'},
+  'verona':{zone:'E',heating:1.10,cooling:.98,prod:.97,label:'Riscaldamento medio-alto e carico estivo rilevante.'},
+  'rovigo':{zone:'E',heating:1.06,cooling:1.02,prod:.98,label:'Riscaldamento medio, raffrescamento estivo importante.'},
+  'milano':{zone:'E',heating:1.12,cooling:1.00,prod:.96,label:'Riscaldamento medio-alto e raffrescamento urbano rilevante.'},
+  'torino':{zone:'E',heating:1.13,cooling:.96,prod:.96,label:'Riscaldamento medio-alto, raffrescamento moderato.'},
+  'bologna':{zone:'E',heating:1.06,cooling:1.04,prod:.98,label:'Riscaldamento medio-alto e raffrescamento estivo importante.'},
+  'genova':{zone:'D',heating:.95,cooling:1.00,prod:1.00,label:'Clima temperato: riscaldamento e raffrescamento bilanciati.'},
+  'firenze':{zone:'D',heating:.96,cooling:1.07,prod:1.01,label:'Riscaldamento medio, raffrescamento estivo rilevante.'},
+  'roma':{zone:'D',heating:.88,cooling:1.12,prod:1.03,label:'Riscaldamento moderato, raffrescamento estivo importante.'},
+  'napoli':{zone:'C',heating:.75,cooling:1.18,prod:1.05,label:'Riscaldamento contenuto, raffrescamento estivo dominante.'},
+  'bari':{zone:'C',heating:.72,cooling:1.18,prod:1.06,label:'Riscaldamento contenuto, raffrescamento estivo dominante.'},
+  'palermo':{zone:'B',heating:.62,cooling:1.25,prod:1.08,label:'Riscaldamento basso, raffrescamento estivo molto rilevante.'},
+  'cagliari':{zone:'C',heating:.70,cooling:1.22,prod:1.07,label:'Riscaldamento contenuto, raffrescamento estivo molto rilevante.'},
+  'trieste':{zone:'E',heating:1.08,cooling:.92,prod:.97,label:'Riscaldamento medio-alto, raffrescamento moderato.'},
+  'udine':{zone:'E',heating:1.14,cooling:.90,prod:.96,label:'Riscaldamento alto, raffrescamento moderato.'},
+  'pordenone':{zone:'E',heating:1.12,cooling:.92,prod:.96,label:'Riscaldamento medio-alto, raffrescamento moderato.'},
+  'ancona':{zone:'D',heating:.92,cooling:1.06,prod:1.02,label:'Riscaldamento medio, raffrescamento estivo rilevante.'},
+  'perugia':{zone:'E',heating:1.03,cooling:1.00,prod:.99,label:'Riscaldamento medio-alto, raffrescamento bilanciato.'},
+  'pescara':{zone:'D',heating:.90,cooling:1.08,prod:1.03,label:'Riscaldamento moderato, raffrescamento estivo importante.'},
+  'l aquila':{zone:'E',heating:1.20,cooling:.82,prod:.95,label:'Riscaldamento alto, raffrescamento contenuto.'},
+  'campobasso':{zone:'E',heating:1.16,cooling:.86,prod:.96,label:'Riscaldamento alto, raffrescamento moderato.'},
+  'potenza':{zone:'E',heating:1.18,cooling:.84,prod:.96,label:'Riscaldamento alto, raffrescamento contenuto.'},
+  'catanzaro':{zone:'C',heating:.72,cooling:1.18,prod:1.06,label:'Riscaldamento contenuto, raffrescamento estivo rilevante.'},
+  'reggio calabria':{zone:'B',heating:.60,cooling:1.26,prod:1.08,label:'Riscaldamento basso, raffrescamento estivo molto rilevante.'}
+};
+function normCity(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
+function climateFromCity(v){const k=normCity(v); const c=CLIMATE_BY_CITY[k]||CLIMATE_DEFAULT; return {...c,city:(v&&String(v).trim())?String(v).trim():CLIMATE_DEFAULT.city};}
+const CITY_OPTIONS=Object.entries(CLIMATE_BY_CITY).map(([key,c])=>({key,name:c.city||key.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '),...c})).sort((a,b)=>a.name.localeCompare(b.name,'it'));
+let cityHideTimer=null;
+function handleCityInput(){showCitySuggestions();recalc()}
+function showCitySuggestions(){
+  const box=el('city-suggestions'); if(!box) return;
+  const q=normCity(el('city-input')?.value||'');
+  const matches=CITY_OPTIONS.filter(c=>!q||c.key.includes(q)||normCity(c.name).includes(q)).slice(0,8);
+  box.innerHTML=matches.map(c=>'<button type="button" class="city-suggestion" onclick="selectCitySuggestion(\''+c.name.replace(/'/g,"\\'")+ '\')"><strong>'+c.name+'</strong><span>Zona '+c.zone+'</span></button>').join('');
+  box.classList.toggle('visible',matches.length>0);
+}
+function hideCitySuggestionsSoon(){cityHideTimer=setTimeout(()=>{const b=el('city-suggestions'); if(b)b.classList.remove('visible')},160)}
+function selectCitySuggestion(name){if(cityHideTimer)clearTimeout(cityHideTimer); el('city-input').value=name; const b=el('city-suggestions'); if(b)b.classList.remove('visible'); recalc()}
+function proposedDefaultsForCurrentPath(){
+  const p=PROFILES[S.percorso];
+  const mq=parseFloat(el('mq').value||p.mq.value), units=parseInt(el('persone').value||p.units.value);
+  const clima=climateFromCity(el('city-input')?.value||'Treviso');
+  const heatingBase=p.thermo ? (mq*(S.cappotto?p.tGood:p.tPoor) + units*p.tUnit) : 0;
+  const coolingBase=p.thermo ? (mq*(S.cappotto?10:18) + units*(S.percorso==='casa'?80:S.percorso==='condo'?55:S.percorso==='hotel'?260:S.percorso==='complesso'?200:120)) : 0;
+  const thermalNeed=p.thermo ? Math.max(0,heatingBase*clima.heating) + Math.max(0,coolingBase*clima.cooling) : 0;
+  const rec=thermalRecommendations(S.percorso,thermalNeed,mq,units);
+  return {p,rec};
+}
+function resetProposedData(){
+  const {p,rec}=proposedDefaultsForCurrentPath();
+  if(el('fabbisogno-adjust')) el('fabbisogno-adjust').value=0;
+  if(el('fv-kwp')) el('fv-kwp').value=p.fv.value;
+  if(el('batt-kwh')) el('batt-kwh').value=p.batt.value;
+  if(S.percorso==='azienda'){
+    if(el('az-col-private')) el('az-col-private').value=2;
+    if(el('az-col-public')) el('az-col-public').value=1;
+    if(el('az-fleet')) el('az-fleet').value=3;
+  }
+  if(S.percorso==='hotel' && el('hotel-col')) el('hotel-col').value=4;
+  S.manualThermal=false;
+  if(p.thermo) syncThermalDefaults(rec);
+  recalc();
+}
+function isProposalModified(p,rec,fv,batt,adjust,pdcKw,caldaiaKw,bollitore,volano){
+  const techChanged = Math.abs(fv-p.fv.value)>0.01 || Math.abs(batt-p.batt.value)>0.01 || adjust!==0;
+  const thermChanged = p.thermo && (S.manualThermal || Math.abs(pdcKw-rec.pdc)>0.1 || (S.caldaiaConfirmata && Math.abs(caldaiaKw-rec.caldaia)>0.1) || Math.abs(bollitore-rec.bollitore)>1 || Math.abs(volano-rec.volano)>1);
+  const aziendaChanged = S.percorso==='azienda' && ((parseInt(el('az-col-private')?.value||0)!==2) || (parseInt(el('az-col-public')?.value||0)!==1) || (parseInt(el('az-fleet')?.value||0)!==3));
+  const hotelChanged = S.percorso==='hotel' && parseInt(el('hotel-col')?.value||0)!==4;
+  return techChanged || thermChanged || aziendaChanged || hotelChanged;
+}
+function sanitizeCodePart(v){return String(v||'Cliente').trim().replace(/[^a-zA-Z0-9À-ÿ]+/g,'-').replace(/^-+|-+$/g,'').slice(0,32)||'Cliente'}
+function buildReportCode(){
+  const name=sanitizeCodePart(el('client-name')?.value||'Cliente');
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return name+'_'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes());
+}
+function updateReportPreview(){const node=el('current-report-code'); if(node) node.textContent=buildReportCode()}
+function reportStore(){try{return JSON.parse(localStorage.getItem('rete21_config_reports')||'[]')}catch(e){return []}}
+function saveReportRecord(record){const list=reportStore().filter(r=>r.code!==record.code); list.unshift(record); localStorage.setItem('rete21_config_reports',JSON.stringify(list.slice(0,20))); renderReportList()}
+function renderReportList(){
+  const box=el('report-list'); if(!box) return;
+  const list=reportStore().slice(0,6);
+  box.innerHTML=list.length?list.map(r=>'<div class="report-item"><div><strong>'+r.code+'</strong><span>'+r.percorso+' · '+r.city+' · '+r.createdLabel+'</span></div><button type="button" onclick="openStoredReport(\''+r.code+'\')">Apri</button></div>').join(''):'<div class="hint">Nessun report salvato in questo browser.</div>';
+}
+function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
+function reportHtml(record){
+  const rows=Object.entries(record.data||{}).map(([k,v])=>'<tr><th>'+escapeHtml(k)+'</th><td>'+escapeHtml(v)+'</td></tr>').join('');
+  return '<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Report '+escapeHtml(record.code)+'</title><style>body{font-family:Montserrat,Helvetica,Arial,sans-serif;color:#414745;margin:28px}h1{font-size:24px;margin:0 0 6px}.code{font-size:18px;font-weight:900;color:#414745;background:#f7f9e6;border-left:6px solid #b5bb00;padding:12px 14px;margin:16px 0}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border-bottom:1px solid #dcddd9;padding:10px 8px;text-align:left;vertical-align:top}th{width:260px;color:#6b7270;text-transform:uppercase;font-size:11px;letter-spacing:.4px}.msg{background:#f7f9e6;border:1px solid #e5e8bd;border-radius:12px;padding:14px;margin-top:16px}@media print{button{display:none}}</style></head><body><h1>Report parallelo configurazione Rete 21</h1><div>Generato il '+escapeHtml(record.createdLabel)+'</div><div class="code">Codice stampa: '+escapeHtml(record.code)+'</div><div class="msg">'+escapeHtml(record.message)+'</div><table>'+rows+'</table><p style="font-size:12px;color:#6b7270;margin-top:22px">Report salvato nel browser che ha generato la simulazione. Per conservarlo fuori dal browser, stampare o salvare questa pagina in PDF.</p><button onclick="window.print()">Stampa / salva PDF</button></body></html>';
+}
+function openStoredReport(code){const r=reportStore().find(x=>x.code===code); if(!r)return; const w=window.open('','_blank'); if(w){w.document.open(); w.document.write(reportHtml(r)); w.document.close();}}
+function generateReport(openIt=false){
+  const d=new Date();
+  const record={code:buildReportCode(),createdLabel:d.toLocaleString('it-IT'),percorso:PROFILES[S.percorso].name,city:S.city||el('city-input')?.value||'—',message:el('commercial-msg')?.textContent||'',data:S.lastReport||{}};
+  saveReportRecord(record); updateReportPreview();
+  if(openIt) openStoredReport(record.code);
+  return record;
+}
+function printWithReport(){generateReport(false); window.print()}
+/* Configuratore_vp98 — cerEurMwh 110→65 (da benchmark PDF CER); rimossi € dall'UI */
+const S={percorso:'casa',cappotto:true,ev:false,isee:0,manualThermal:false,city:'Treviso',caldaiaConfirmata:false,scontoFatturaCT:false,toggles:{detrazione:true,conto:true,rid:true,cer:true,pnrr:false,rata:true}};
+function toggleScontoFatturaCT(){
+  const cb = document.getElementById('sconto-fattura-ct-cb');
+  if(!cb) return;
+  S.scontoFatturaCT = cb.checked;
+  // Aggiorna visibilità nota esplicativa
+  const nota = document.getElementById('sconto-ct-nota');
+  if(nota) nota.style.display = cb.checked ? 'block' : 'none';
+  recalc();
+}
+// vp107: setCaldaiaMode sostituisce toggleCaldaiaConfirm
+function setCaldaiaMode(mode,btn){
+  S.caldaiaConfirmata=(mode==='ibrido');
+  document.querySelectorAll('#caldaia-mode-seg button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else {
+    const fb=el(mode==='ibrido'?'caldaia-mode-ibrido':'caldaia-mode-abbandono');
+    if(fb) fb.classList.add('active');
+  }
+  // vp110: aggiorna pill attiva superiore
+  const lbl=el('caldaia-mode-active-label');
+  if(lbl) lbl.textContent=mode==='ibrido'?'+ Caldaia a condensazione':'♻ Abbandono fossile';
+  const slider=el('caldaia-slider-wrap');
+  if(slider) slider.classList.toggle('visible',S.caldaiaConfirmata);
+  updateCaldaiaCTNote();
+  recalc();
+}
+function toggleCaldaiaConfirm(){setCaldaiaMode(S.caldaiaConfirmata?'abbandono':'ibrido',null);}
+function updateCaldaiaCTNote(){
+  const note=el('caldaia-ct-note');
+  if(!note) return;
+  const contoAttivo=S.toggles.conto;
+  const caldaiaOn=S.caldaiaConfirmata;
+  if(contoAttivo && !caldaiaOn){
+    note.style.display='block';
+  }else{
+    note.style.display='none';
+  }
+}
+function el(id){return document.getElementById(id)}
+function num(n,d=0){return (isFinite(n)?n:0).toLocaleString('it-IT',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtKWh(n){return num(n,0)+' kWh'}
+function fmtEuro(n){return Math.round(isFinite(n)?n:0).toLocaleString('it-IT')+'€'}
+const DASH_COUNTER={timer:null,raf:null,displayMonths:null,lastTarget:null};
+/* vp82 — split-flap Solari */
+function initSFPanels(){
+  ['dash-years','dash-months'].forEach(function(id){
+    var node=el(id); if(!node) return;
+    var val=node.textContent||'—';
+    node.innerHTML='<div class="sf-static"><span>'+val+'</span></div>'
+      +'<div class="sf-top-cover"><span>'+val+'</span></div>'
+      +'<div class="sf-bot-cover"><span>'+val+'</span></div>';
+    node._sfVal=val;
+  });
+}
+function setFlipText(id,value){
+  var node=el(id); if(!node) return;
+  var txt=String(value);
+  var prev=node._sfVal||'—';
+  if(prev===txt) return;
+  node._sfVal=txt;
+  var stat=node.querySelector('.sf-static span');
+  var top=node.querySelector('.sf-top-cover');
+  var bot=node.querySelector('.sf-bot-cover');
+  if(!stat){node.textContent=txt;return;}
+  top.querySelector('span').textContent=prev;
+  bot.querySelector('span').textContent=txt;
+  stat.textContent=txt;
+  top.classList.remove('go'); bot.classList.remove('go');
+  bot.style.animation='none'; bot.style.transform='scaleY(0)';
+  void top.offsetWidth;
+  top.classList.add('go'); bot.classList.add('go');
+  var t=node._sfTimer; if(t) clearTimeout(t);
+  node._sfTimer=setTimeout(function(){
+    top.classList.remove('go'); bot.classList.remove('go');
+    bot.style.animation='none'; bot.style.transform='scaleY(0)';
+    top.querySelector('span').textContent=txt;
+  },340); /* 260ms × 1.30 ≈ 340ms */
+}
+function renderDashCounterFromMonths(totalMonths,totalText,trendClass){
+  if(typeof totalMonths==='number' && isFinite(totalMonths)){
+    const y=Math.floor(Math.max(0,totalMonths)/12);
+    const m=Math.max(0,Math.round(totalMonths)%12);
+    setFlipText('dash-years',String(y).padStart(2,'0'));
+    setFlipText('dash-months',String(m).padStart(2,'0'));
+    DASH_COUNTER.displayMonths=totalMonths;
+  }else{
+    setFlipText('dash-years',totalMonths===null?'20+':'—');
+    setFlipText('dash-months','—');
+    DASH_COUNTER.displayMonths=null;
+  }
+  const total=el('dash-total-months');
+  if(total){
+    total.textContent=totalText;
+    total.classList.remove('pending','down','up');
+    if(trendClass) total.classList.add(trendClass);
+  }
+}
+// Valori interni derivati dal Listino_v72_Editabile.xlsx. Non vengono mostrati al cliente.
+const LISTINO={
+  fv:[[3,1700],[4.5,1685],[6,1669],[9,1640],[12,1609],[15,1579],[20,1528],[25,1478],[30,1428],[40,1327],[50,1227],[75,974],[90,824],[100,722],[150,722],[200,722],[250,722]],
+  batt:[[3,468],[4.5,467],[6,466],[9,464],[12,462],[15,460],[20,457],[30,451],[50,439],[75,423],[100,408]],
+  pdcCasa:[[8,8500],[12,12500],[16,15000],[20,18500]],
+  pdcCondo:[[12,11000],[15,12500],[30,13000],[60,26000],[90,39000],[150,65000]],
+  pdcAzienda:[[30,14500],[60,26000],[90,39000],[150,65000]],
+  caldaiaCasa:[[24,3500],[35,4500],[45,24500]],
+  caldaiaCondo:[[100,12500],[200,22000],[300,31000]],
+  caldaiaAzienda:[[115,13500],[200,22000],[300,33000]],
+  bollCasa:[[200,1500],[300,2200],[500,3500]],
+  bollCondo:[[1000,5500]],
+  bollAzienda:[[1000,5500],[2000,9500]],
+  volCasa:[[10,280],[20,390],[50,650],[100,950],[500,1800],[1000,2700],[1500,3500]],
+  volCondo:[[500,2000]],
+  volAzienda:[[10,280],[20,390],[50,650],[100,950],[500,1800],[1000,2700],[1500,3500]],
+  wallbox:{baseMono:1755,baseTri:2610,rfidTri:3200,publicTri:4800},
+  params:{prezzoKwh:{casa:.32,condo:.28,azienda:.24,hotel:.24,complesso:.24,produttore:.24},prezzoGas:{casa:1.3,condo:1.1,azienda:1.1,hotel:1.1,complesso:1.1,produttore:1.1},cerEurMwh:65,ridEurMwh:90,copPdc:3.5,tan:4.75,speseIstruttoria:.01,speseIncasso:3.5}
+};
+function interpRate(points,x){if(!points||!points.length)return 0; if(x<=points[0][0])return points[0][1]; for(let i=1;i<points.length;i++){if(x<=points[i][0]){const a=points[i-1],b=points[i]; return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]);}} return points[points.length-1][1];}
+function priceBySize(points,x){if(!points||!points.length||x<=0)return 0; for(const [size,price] of points){if(x<=size)return price;} const last=points[points.length-1]; return last[1]*(x/last[0]);}
+function pdcListinoCost(percorso,kw){if(kw<=0)return 0; if(percorso==='casa')return priceBySize(LISTINO.pdcCasa,kw); if(percorso==='condo')return priceBySize(LISTINO.pdcCondo,kw); return priceBySize(LISTINO.pdcAzienda,kw);}
+function bollListinoCost(percorso,litri){if(litri<=0)return 0; if(percorso==='casa')return priceBySize(LISTINO.bollCasa,litri); if(percorso==='condo')return priceBySize(LISTINO.bollCondo,litri); return priceBySize(LISTINO.bollAzienda,litri);}
+function caldaiaListinoCost(percorso,kw){if(kw<=0)return 0; if(percorso==='casa')return priceBySize(LISTINO.caldaiaCasa,kw); if(percorso==='condo')return priceBySize(LISTINO.caldaiaCondo,kw); return priceBySize(LISTINO.caldaiaAzienda,kw);}
+function volanoListinoCost(percorso,litri){if(litri<=0)return 0; if(percorso==='casa')return priceBySize(LISTINO.volCasa,litri); if(percorso==='condo')return priceBySize(LISTINO.volCondo,litri); return priceBySize(LISTINO.volAzienda,litri);}
+function loanPaymentWithFees(principal,months,annualRate){const financed=principal*(1+LISTINO.params.speseIstruttoria); return loanPayment(financed,months,annualRate)+LISTINO.params.speseIncasso;}
+function loanPayment(principal,months,annualRate){if(months<=0)return principal;const r=annualRate/100/12;if(r===0)return principal/months;return principal*r/(1-Math.pow(1+r,-months))}
+/* vp95 — degrado FV lineare −0,5%/anno sulla quota di beneficio dipendente dalla produzione.
+   benefitFvMonth  = parte mensile che scala con la produzione (autoconsumo, RID, CER).
+   benefitFixMonth = parte mensile fissa (detrazione, Conto Termico, risparmio mobilità).
+   La funzione cerca il numero minimo di mesi in cui la rata è coperta
+   tenendo conto del decadimento progressivo; cicla mese per mese anno per anno. */
+const FV_DEGRADO_ANNUO = 0.005; /* −0,5 % per anno */
+function minMonthsForZero(principal,benefitFixMonth,benefitFvMonth,annualRate){
+  const totalMonth0=benefitFixMonth+benefitFvMonth;
+  if(totalMonth0<=0) return null;
+  for(let m=12;m<=240;m++){
+    const rata=loanPaymentWithFees(principal,m,annualRate);
+    /* Verifica se OGNI mese del piano è coperto (il mese peggiore è l'ultimo del piano) */
+    /* Il mese più sfavorevole è il mese m stesso (degrado massimo).
+       Anno del mese m: Math.floor((m-1)/12), degrado = anno * 0.5% */
+    const lastYear=Math.floor((m-1)/12);
+    const worstFvFactor=Math.max(0, 1 - lastYear*FV_DEGRADO_ANNUO);
+    const worstBenefit=benefitFixMonth + benefitFvMonth*worstFvFactor;
+    if(rata<=worstBenefit) return m;
+  }
+  return null;
+}
+function splitMonths(total){if(total===null||total===undefined)return {years:'—',months:'—'}; if(total===0)return {years:0,months:0}; return {years:Math.floor(total/12),months:total%12}}
+function setRange(id,cfg){const r=el(id); if(!r||!cfg)return; r.min=cfg.min; r.max=cfg.max; r.step=cfg.step; r.value=cfg.value;}
+function markThermalManual(){S.manualThermal=true; recalc()}
+function setThermalRange(id,value,min,max,step){const r=el(id); if(!r)return; r.min=min; r.max=max; r.step=step; r.value=value;}
+function nearestStep(v,step){return Math.max(0,Math.round(v/step)*step)}
+function thermalRecommendations(percorso,thermalNeed,mq,units){
+  if(!thermalNeed||thermalNeed<=0)return {pdc:0,caldaia:0,bollitore:0,volano:0};
+  const peak=Math.max(6, thermalNeed/(percorso==='casa'?1450:percorso==='condo'?1550:percorso==='hotel'?1500:percorso==='complesso'?1480:1600));
+  let pdc=0, caldaia=0, bollitore=0, volano=0;
+  if(percorso==='casa'){pdc=nearestStep(Math.min(20,Math.max(8,peak*0.95)),1); caldaia=nearestStep(Math.min(35,Math.max(24,peak*0.60)),1); bollitore=units<=2?200:units<=4?300:500; volano=peak<=10?100:peak<=16?500:1000;}
+  else if(percorso==='condo'){pdc=nearestStep(Math.min(150,Math.max(12,peak*0.62)),5); caldaia=nearestStep(Math.min(300,Math.max(100,peak*0.85)),50); bollitore=units<=20?1000:units<=45?1500:2000; volano=peak<=60?500:peak<=120?1000:1500;}
+  else if(percorso==='hotel'){pdc=nearestStep(Math.min(150,Math.max(30,peak*0.80)),5); caldaia=nearestStep(Math.min(300,Math.max(115,peak*0.70)),5); bollitore=units<=40?1000:units<=100?2000:3000; volano=peak<=90?1000:1500;}
+  else if(percorso==='complesso'){pdc=nearestStep(Math.min(200,Math.max(40,peak*0.75)),5); caldaia=nearestStep(Math.min(300,Math.max(115,peak*0.80)),5); bollitore=units<=10?1000:units<=25?2000:3000; volano=peak<=90?1000:1500;}
+  else {pdc=nearestStep(Math.min(150,Math.max(30,peak*0.70)),5); caldaia=nearestStep(Math.min(300,Math.max(115,peak*0.75)),5); bollitore=units<=50?1000:2000; volano=peak<=90?1000:1500;}
+  return {pdc,caldaia,bollitore,volano};
+}
+function syncThermalDefaults(rec){
+  setThermalRange('thermal-pdc-kw',rec.pdc,0,Math.max(20,Math.ceil(rec.pdc*1.8/10)*10),1);
+  setThermalRange('thermal-caldaia-kw',rec.caldaia,0,Math.max(300,Math.ceil(rec.caldaia*1.6/50)*50),5);
+  setThermalRange('thermal-bollitore-l',rec.bollitore,0,Math.max(3000,Math.ceil(rec.bollitore*1.5/100)*100),50);
+  setThermalRange('thermal-volano-l',rec.volano,0,Math.max(3000,Math.ceil(rec.volano*1.5/100)*100),50);
+}
+function showAllPaths(){
+  const g=document.getElementById('path-grid');
+  if(g) g.classList.remove('path-chosen');
+  const b=document.getElementById('btn-change-path');
+  if(b) b.style.display='none';
+  // vp102: scroll morbido alla sezione percorsi
+  const sec=document.getElementById('percorsi');
+  if(sec) setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),40);
+}
+function selectPath(key){
+  S.percorso=key; S.manualThermal=false; const p=PROFILES[key];
+  document.querySelectorAll('.path-card').forEach(c=>c.classList.toggle('active',c.dataset.path===key));
+  // vp102: mostra card scelta a tutta larghezza, nascondi le altre
+  const _pg=document.getElementById('path-grid'); if(_pg) _pg.classList.add('path-chosen');
+  const _bcp=document.getElementById('btn-change-path'); if(_bcp) _bcp.style.display='';
+  setRange('mq',p.mq); setRange('persone',p.units); setRange('fv-kwp',p.fv); setRange('batt-kwh',p.batt);
+  el('profile-strip-title').textContent='Percorso attivo: '+p.name;
+  el('profile-strip-text').textContent= key==='produttore' ? 'Compilazione minima: città, superficie disponibile, potenza fotovoltaica, accumulo eventuale e leve RID/CER. La città modula la producibilità FV stimata.' : 'Compilazione minima: città, superficie, isolamento, '+p.unitLabel.toLowerCase()+', fotovoltaico e accumulo. Il cruscotto calcola il punto in cui la rata può andare a 0€.'+(key==='casa'?' Il parametro ISEE è attivabile nella sezione Dati iniziali.':'');
+  const iseeField=el('isee-field'); if(iseeField) iseeField.style.display=(key==='casa')?'':'none';
+  S.isee=0;
+  const bSi=el('isee-base-si'),bNo=el('isee-base-no');if(bSi)bSi.classList.remove('active');if(bNo)bNo.classList.add('active');
+  const nSi=el('isee-num-si'),nNo=el('isee-num-no');if(nSi)nSi.classList.remove('active');if(nNo)nNo.classList.add('active');
+  el('dati-title').textContent='Dati iniziali — '+p.name;
+  el('dati-subtitle').textContent='Poche righe per stimare consumi, produzione e punto di pareggio della rateizzazione.';
+  el('mq-label').textContent=p.mqLabel; el('mq-hint').textContent=p.mqHint;
+  el('persone-label').textContent=p.unitLabel; el('persone-unit').textContent=p.unit; el('persone-hint').textContent=p.unitHint;
+  el('isolamento-label').textContent= key==='produttore' ? 'Sito / superficie ottimizzata' : (key==='azienda'?'Involucro efficiente':'Cappotto / isolamento');
+  el('isolamento-hint').textContent= key==='produttore' ? 'Incide come qualità del sito: orientamento, ombreggiamenti, accessibilità e producibilità.' : 'Incide su fabbisogno energetico, dimensionamento tecnico e velocità del punto di pareggio.';
+  el('sistema-subtitle').textContent= key==='produttore' ? 'Il sistema è orientato a produzione FV, accumulo eventuale, RID e CER.' : (key==='casa'?'Il sistema propone pompa di calore, bollitore, volano termico, FV e accumulo.':'Il sistema propone caldaia nuova/backup, pompa di calore, bollitore, volano termico, FV e accumulo.');
+  el('included-1-title').textContent= p.thermo?'Fabbisogno + impianto termico':'Impianto fotovoltaico produttore';
+  el('included-1-text').textContent= p.thermo?'Dimensionata automaticamente in funzione del percorso, della superficie e dell’isolamento.':'Taglia grande per produzione, condivisione e valorizzazione dell’energia.';
+  el('fv-hint').textContent= key==='produttore'?'Regola la taglia produttiva: il punto di pareggio dipende soprattutto da energia valorizzata e CER.':'Aumentando il fotovoltaico cresce l’energia disponibile per autoconsumo, RID e CER/GAC.';
+  el('batt-hint').textContent= key==='produttore'?'Accumulo facoltativo: utile per servizi energetici e migliore gestione dell’energia.':'Aumentando l’accumulo aumenta l’autoconsumo stimato e può migliorare il pareggio.';
+  el('mobilita-title').textContent= key==='produttore'?'Servizi di ricarica / mobilità':'Auto elettrica';
+  el('mobilita-subtitle').textContent= key==='produttore'?'Valorizza eventuali consumi da ricarica e servizi connessi alla produzione.':'Se presente, aumenta i consumi elettrici utili e il valore dell’autoconsumo.';
+  el('ev-toggle-title').textContent='Simula '+p.evLabel.toLowerCase();
+  el('ev-toggle-text').textContent= key==='produttore'?'Attiva una quota di energia destinata a servizi di ricarica o consumi locali.':'Attiva il calcolo dei consumi aggiuntivi e dell’energia autoconsumabile.';
+  el('km-ev-label').textContent= key==='produttore'?'Energia servizi ricarica equivalente':'Percorrenza annua stimata';
+  el('km-ev-hint').textContent= key==='produttore'?'Cursore espresso come km equivalenti per mantenere la simulazione semplice.':'Viene considerata solo quando la simulazione mobilità è attiva.';
+
+  el('mini-pdc-label').textContent=p.thermo?'Pompa di calore proposta':'Taglia produttiva';
+  el('mini-bollitore-label').textContent=p.thermo?'Bollitore ACS proposto':'Profilo energetico';
+  el('mini-ev-label').textContent=p.evLabel;
+  const azMob=el('azienda-mobility-extra'), hotelMob=el('hotel-mobility-extra');
+  if(azMob) azMob.classList.toggle('visible', key==='azienda');
+  if(hotelMob) hotelMob.classList.toggle('visible', key==='hotel');
+  const th=el('thermal-proposal'); if(th) th.classList.toggle('hidden', !p.thermo);
+  // vp96: avviso compatibilità beneficio fiscale + CT3.0, testo adattato al percorso
+  const compatNote=el('compat-note-det-ct'); if(compatNote) compatNote.style.display=p.thermo?'':'none';
+  const isResid=(key==='casa'||key==='condo');
+  const compatTitle=el('compat-note-title'); const compatBody=el('compat-note-body');
+  if(compatTitle) compatTitle.textContent=isResid?'ℹ Detrazione 50% e CT3.0 sono compatibili in questo configuratore':'ℹ Deducibilità IRES+IRAP e CT3.0 sono compatibili in questo configuratore';
+  if(compatBody) compatBody.textContent=isResid?'perché applicati su voci di costo distinte: la Detrazione 50% copre esclusivamente l\'impianto fotovoltaico e le batterie; il Conto Termico 3.0 copre esclusivamente la componente idraulica (pompa di calore, bollitore, volano). Nessuna voce di costo compare in entrambe le basi di calcolo — non si cumulano sugli stessi interventi.':'perché applicati su voci di costo distinte: la deducibilità IRES+IRAP (art. 102 TUIR + D.Lgs. 446/97) copre l\'impianto fotovoltaico e le batterie; il Conto Termico 3.0 copre esclusivamente la componente idraulica (pompa di calore, bollitore, volano). Nessuna voce di costo compare in entrambe le basi di calcolo.';
+  // vp96: toggle detrazione visibile per tutti tranne produttore; label adattata al percorso
+  const tgDet=document.querySelector('.toggle[onclick*="detrazione"]');
+  if(tgDet){
+    const isProd=(key==='produttore');
+    tgDet.style.display=isProd?'none':'';
+    if(isProd){tgDet.classList.remove('on');S.toggles.detrazione=false;}
+    else{tgDet.classList.add('on');S.toggles.detrazione=true;}
+    const tgTit=tgDet.querySelector('.toggle-text strong');
+    const tgSub=tgDet.querySelector('.toggle-text span');
+    if(tgTit) tgTit.textContent=isResid?'Bonus Ristrutturazioni 50%':'Deducibilità IRES+IRAP sul FV';
+    if(tgSub) tgSub.textContent=isResid?'ai sensi dell\'Art. 16-bis del TUIR - Ristrutturazioni Edilizie':'Beneficio fiscale su FV e batterie — art. 102 TUIR + D.Lgs. 446/97 IRAP';
+  }
+  const thGrid=el('thermal-grid'); if(thGrid) thGrid.classList.remove('casa');
+  if(el('card-caldaia')) el('card-caldaia').classList.remove('hide');
+  // vp108: reset caldaia ad 'abbandono fossile' (rimuovi duplicati)
+  S.caldaiaConfirmata=false;
+  const _ab=el('caldaia-mode-abbandono'); if(_ab) _ab.classList.add('active');
+  const _ib=el('caldaia-mode-ibrido'); if(_ib) _ib.classList.remove('active');
+  const _sl2=el('caldaia-slider-wrap'); if(_sl2) _sl2.classList.remove('visible');
+  if(key==='azienda' || key==='hotel'){
+    S.ev=true;
+    el('tg-ev').classList.add('on');
+  }else{
+    S.ev=false;
+    el('tg-ev').classList.remove('on');
+  }
+  if(key==='azienda'){
+    el('mobilita-title').textContent='Colonnine, card e automezzi elettrici';
+    el('mobilita-subtitle').textContent='Indica colonnine private con card, colonnine pubbliche e automezzi elettrici aziendali. La valorizzazione entra nel punto di pareggio.';
+    el('ev-toggle-title').textContent='Attiva valorizzazione mobilità aziendale';
+    el('ev-toggle-text').textContent='Include ricariche con card, ricariche pubbliche e flotta elettrica aziendale.';
+    el('km-ev-label').textContent='Percorrenza media annua per automezzo';
+    el('km-ev-hint').textContent='Usata per stimare energia richiesta e risparmio dei mezzi elettrici aziendali.';
+  }
+  if(key==='hotel'){
+    el('mobilita-title').textContent='Colonnine di ricarica per ospiti';
+    el('mobilita-subtitle').textContent='Indica quante colonnine vuoi prevedere per ospiti, ristorante, wellness e clientela esterna.';
+    el('ev-toggle-title').textContent='Attiva valorizzazione ricarica ospiti';
+    el('ev-toggle-text').textContent='Include energia destinata alla ricarica e beneficio commerciale del servizio.';
+    el('km-ev-label').textContent='Percorrenza equivalente ricariche ospiti';
+    el('km-ev-hint').textContent='Parametro sintetico per mantenere semplice la simulazione delle ricariche.';
+  }
+  recalc();
+}
+function setIsee(level,btn,card){
+  S.isee=level;
+  const bSi=el('isee-base-si'),bNo=el('isee-base-no');
+  if(bSi&&bNo){bSi.classList.toggle('active',level===1);bNo.classList.toggle('active',level!==1);}
+  const nSi=el('isee-num-si'),nNo=el('isee-num-no');
+  if(nSi&&nNo){nSi.classList.toggle('active',level===2);nNo.classList.toggle('active',level!==2);}
+  recalc();
+}
+function toggleSetting(key,row){if(key==='rata') return;
+if(key==='ev'){S.ev=!S.ev; row.classList.toggle('on',S.ev); recalc(); return;} S.toggles[key]=!S.toggles[key]; if(row) row.classList.toggle('on',S.toggles[key]); recalc()}
+function setCappotto(value,btn){S.cappotto=value; document.querySelectorAll('#cappotto-seg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); recalc()}
+function resetAll(){location.reload()}
+function recalc(){
+  const p=PROFILES[S.percorso];
+  S.city=el('city-input')?.value||'Treviso';
+  const clima=climateFromCity(S.city);
+  const mq=parseFloat(el('mq').value||p.mq.value), units=parseInt(el('persone').value||p.units.value), fv=parseFloat(el('fv-kwp').value||p.fv.value), batt=parseFloat(el('batt-kwh').value||p.batt.value), kmEv=parseFloat(el('km-ev').value||12000);
+  const azPrivate=parseInt(el('az-col-private')?.value||0), azPublic=parseInt(el('az-col-public')?.value||0), azFleet=parseInt(el('az-fleet')?.value||0), hotelCols=parseInt(el('hotel-col')?.value||0);
+  const prezzoKwh=LISTINO.params.prezzoKwh[S.percorso]||.28;
+  const prezzoGas=LISTINO.params.prezzoGas[S.percorso]||1.1;
+  el('mq-val').textContent=num(mq,0); el('persone-val').textContent=num(units,0); el('fv-val').textContent=num(fv,1).replace(',0',''); el('batt-val').textContent=num(batt,0); el('km-ev-val').textContent=num(kmEv,0);
+  if(el('climate-zone')) el('climate-zone').textContent=clima.zone;
+  if(el('climate-title')) el('climate-title').textContent='Zona climatica '+clima.zone+' — '+clima.city;
+  if(el('climate-note')) el('climate-note').textContent=clima.label+' Il calcolo modula separatamente riscaldamento e raffrescamento.';
+  if(el('mini-clima')) el('mini-clima').textContent=clima.city+' · zona '+clima.zone;
+  if(el('mini-fv')) el('mini-fv').textContent=num(fv,1).replace(',0','')+' kWp';
+  if(el('mini-batt-row')) el('mini-batt-row').style.display=batt>0?'flex':'none';
+  if(el('mini-batt')) el('mini-batt').textContent=batt>0?num(batt,0)+' kWh':'Non incluso';
+  if(el('az-col-private-val')) el('az-col-private-val').textContent=azPrivate;
+  if(el('az-col-public-val')) el('az-col-public-val').textContent=azPublic;
+  if(el('az-fleet-val')) el('az-fleet-val').textContent=azFleet;
+  if(el('hotel-col-val')) el('hotel-col-val').textContent=hotelCols;
+  const siteFactor = (S.cappotto ? 1.0 : 0.88) * clima.prod;
+  const baseElectric=p.eBase + mq*p.eMq + units*p.eUnit;
+  const adjust=parseFloat(el('fabbisogno-adjust')?.value||0);
+  if(el('fabbisogno-adjust-val')) el('fabbisogno-adjust-val').textContent=(adjust>0?'+':'')+num(adjust,0);
+  const heatingBase=p.thermo ? (mq*(S.cappotto?p.tGood:p.tPoor) + units*p.tUnit) : 0;
+  const coolingBase=p.thermo ? (mq*(S.cappotto?10:18) + units*(S.percorso==='casa'?80:S.percorso==='condo'?55:S.percorso==='hotel'?260:S.percorso==='complesso'?200:120)) : 0;
+  const heatingNeed=p.thermo ? Math.max(0,heatingBase*clima.heating*(1+adjust/100)) : 0;
+  const coolingNeed=p.thermo ? Math.max(0,coolingBase*clima.cooling*(1+adjust/100)) : 0;
+  const thermalNeed=p.thermo ? heatingNeed + coolingNeed : 0;
+  const rec=thermalRecommendations(S.percorso,thermalNeed,mq,units);
+  if(p.thermo && !S.manualThermal) syncThermalDefaults(rec);
+  const pdcKw=p.thermo?parseFloat(el('thermal-pdc-kw')?.value||rec.pdc):0;
+  const caldaiaKw=(p.thermo && S.caldaiaConfirmata)?parseFloat(el('thermal-caldaia-kw')?.value||rec.caldaia):0;
+  const bollitore=p.thermo?parseFloat(el('thermal-bollitore-l')?.value||rec.bollitore):0;
+  const volano=p.thermo?parseFloat(el('thermal-volano-l')?.value||rec.volano):0;
+  if(el('thermal-pdc-val')) el('thermal-pdc-val').textContent=num(pdcKw,0);
+  if(el('thermal-caldaia-val')) el('thermal-caldaia-val').textContent=num(caldaiaKw,0);
+  if(el('thermal-bollitore-val')) el('thermal-bollitore-val').textContent=num(bollitore,0);
+  if(el('thermal-volano-val')) el('thermal-volano-val').textContent=num(volano,0);
+  const differs=p.thermo && (S.manualThermal || Math.abs(pdcKw-rec.pdc)>0.1 || Math.abs(bollitore-rec.bollitore)>1 || Math.abs(volano-rec.volano)>1 || adjust!==0);
+  const proposalModified=isProposalModified(p,rec,fv,batt,adjust,pdcKw,caldaiaKw,bollitore,volano);
+  if(el('thermal-status-badge')){el('thermal-status-badge').textContent=differs?'Configurazione variata':'Proposta automatica'; el('thermal-status-badge').classList.toggle('manual',differs)}
+  if(el('thermal-actions')) el('thermal-actions').classList.toggle('manual',differs);
+  if(el('proposal-reset-row')) el('proposal-reset-row').classList.toggle('visible',proposalModified);
+  if(el('dash-reset-proposed')) el('dash-reset-proposed').style.display=proposalModified?'inline-flex':'none';
+  if(el('fabbisogno-stimato')) el('fabbisogno-stimato').textContent=p.thermo?fmtKWh(thermalNeed):'Non prioritario';
+  if(el('fabbisogno-stimato-note')) el('fabbisogno-stimato-note').textContent=p.thermo?'Include riscaldamento e raffrescamento modulati su '+clima.city+' · zona '+clima.zone+'.':'Nel percorso produttore la città modula la producibilità FV stimata.';
+  if(el('heating-need')) el('heating-need').textContent=p.thermo?fmtKWh(heatingNeed):'—';
+  if(el('cooling-need')) el('cooling-need').textContent=p.thermo?fmtKWh(coolingNeed):'—';
+  if(el('thermal-proposal-text')) el('thermal-proposal-text').textContent=p.thermo ? 'La proposta include pompa di calore, bollitore ACS e volano termico. La sostituzione della caldaia fossile è suggerita come opzione da confermare per attivare il Conto Termico 3.0.' : 'Nel percorso Produttore il focus resta su produzione, RID e CER.';
+  if(el('thermal-source-note')) el('thermal-source-note').innerHTML= differs ? '<strong>Configurazione variata:</strong> hai modificato il fabbisogno o almeno un componente rispetto alla proposta automatica calcolata da dimensioni edificio, città/zona climatica, domande iniziali e listino interno. Il punto di pareggio è stato ricalcolato.' : '<strong>Proposta automatica:</strong> valori calcolati da superficie, città/zona climatica, isolamento, persone/unità e profilo del percorso, con valori interni derivati dal listino. Puoi variare i cursori e vedere subito l’effetto sul pareggio.';
+  const cop = S.cappotto ? LISTINO.params.copPdc : 2.85;
+  // vp110: in sistema ibrido la pdc copre ~75% del fabbisogno termico, la caldaia gas il 25% restante (picchi).
+  // In abbandono fossile la pdc copre il 100% → zero gas residuo → risparmio maggiore → meno anni.
+  const pdcCoverage = (p.thermo && S.caldaiaConfirmata) ? 0.75 : 1.0;
+  const thermalByPdc = p.thermo ? thermalNeed * pdcCoverage : 0;
+  const thermalByGas  = p.thermo ? thermalNeed * (1 - pdcCoverage) : 0;
+  const hpElectric = p.thermo ? thermalByPdc/cop : 0;
+  let evCons = S.ev ? kmEv * (S.percorso==='produttore'?0.22:0.17) : 0;
+  let mobilityValue = 0;
+  let mobilityKwh = 0;
+  if(S.ev && S.percorso==='azienda'){
+    const privateKwh = azPrivate * 18 * 240;
+    const publicKwh = azPublic * 32 * 300;
+    const fleetKwh = azFleet * kmEv * 0.19;
+    const privateValue = privateKwh * 0.22;
+    const publicValue = publicKwh * 0.34;
+    const fleetValue = azFleet * Math.max(0, kmEv * 0.065 * 1.85 - kmEv * 0.19 * prezzoKwh * 0.45);
+    mobilityKwh = privateKwh + publicKwh + fleetKwh;
+    mobilityValue = privateValue + publicValue + fleetValue;
+    evCons = mobilityKwh;
+    if(el('az-private-value')) el('az-private-value').textContent=fmtKWh(privateKwh)+'/anno';
+    if(el('az-public-value')) el('az-public-value').textContent=fmtKWh(publicKwh)+'/anno';
+    if(el('az-fleet-value')) el('az-fleet-value').textContent=fmtKWh(fleetKwh)+'/anno';
+  }else{
+    if(el('az-private-value')) el('az-private-value').textContent='—';
+    if(el('az-public-value')) el('az-public-value').textContent='—';
+    if(el('az-fleet-value')) el('az-fleet-value').textContent='—';
+  }
+  if(S.ev && S.percorso==='hotel'){
+    const hotelKwh = hotelCols * 26 * 300;
+    mobilityKwh = hotelKwh;
+    mobilityValue = hotelKwh * 0.28;
+    evCons = hotelKwh;
+    if(el('hotel-col-value')) el('hotel-col-value').textContent=fmtKWh(hotelKwh)+'/anno';
+    if(el('hotel-charge-kwh')) el('hotel-charge-kwh').textContent=fmtKWh(hotelKwh);
+    if(el('hotel-payback-effect')) el('hotel-payback-effect').textContent=hotelCols>0?'attivo':'non attivo';
+  }else{
+    if(el('hotel-col-value')) el('hotel-col-value').textContent='—';
+    if(el('hotel-charge-kwh')) el('hotel-charge-kwh').textContent='—';
+    if(el('hotel-payback-effect')) el('hotel-payback-effect').textContent='non attivo';
+  }
+  const totalElectric = Math.max(1,baseElectric + hpElectric + evCons);
+  const prod = fv * p.prod * siteFactor;
+  let autoPct = (p.thermo?0.30:0.10) + Math.min(0.32, batt/(Math.max(1,fv))*0.045) + (S.ev ? 0.08 : 0) + (S.cappotto ? 0.04 : 0);
+  if(['azienda','hotel','complesso'].includes(S.percorso)) autoPct += .16;
+  if(S.percorso==='condo') autoPct += .08;
+  if(S.percorso==='produttore') autoPct = 0.05 + (S.ev?.04:0) + Math.min(.12,batt/2000);
+  autoPct = Math.min(S.percorso==='produttore'?0.28:0.90, autoPct);
+  const selfUse = Math.min(prod * autoPct, totalElectric);
+  const exportEnergy = Math.max(0, prod - selfUse);
+  const sharedEnergy = S.toggles.cer ? prod * p.shared : 0;
+  const currentElectricSpend = baseElectric * prezzoKwh;
+  const currentGasSpend = p.thermo ? (thermalNeed / (9.5 * 0.88)) * prezzoGas : 0;
+  const currentFuelSpend = (S.ev && !['azienda','hotel'].includes(S.percorso)) ? (kmEv * 0.065 * 1.85) : 0;
+  const baselineSpend = currentElectricSpend + currentGasSpend + currentFuelSpend;
+  const postElectricSpend = Math.max(0, totalElectric - selfUse) * prezzoKwh;
+  // vp110: gas residuo in modalità ibrida (caldaia usata per picchi)
+  const postGasSpend = p.thermo ? (thermalByGas / (9.5 * 0.88)) * prezzoGas : 0;
+  const rid = S.toggles.rid ? exportEnergy * (LISTINO.params.ridEurMwh/1000) : 0;
+  const pnrrActive = S.toggles.pnrr && S.toggles.cer;
+  const cerTariff = pnrrActive ? LISTINO.params.cerEurMwh * 0.50 : LISTINO.params.cerEurMwh;
+  const cer = S.toggles.cer ? sharedEnergy * (cerTariff/1000) : 0;
+  const evSaving = ['azienda','hotel'].includes(S.percorso) ? mobilityValue : (S.ev ? Math.max(0, currentFuelSpend - evCons * prezzoKwh * 0.55) : 0);
+  const costPdc = p.thermo ? pdcListinoCost(S.percorso,pdcKw) : 0;
+  const costBollitore = p.thermo ? bollListinoCost(S.percorso,bollitore) : 0;
+  const costCaldaia = (p.thermo && S.caldaiaConfirmata) ? caldaiaListinoCost(S.percorso,caldaiaKw) : 0;
+  const costVolano = p.thermo ? volanoListinoCost(S.percorso,volano) : 0;
+  const costFv = fv * interpRate(LISTINO.fv, Math.min(fv,250));
+  const costBatt = batt * interpRate(LISTINO.batt, Math.min(Math.max(batt,3),100));
+  const wallboxCost = S.ev && S.percorso==='azienda' ? (azPrivate*LISTINO.wallbox.rfidTri + azPublic*LISTINO.wallbox.publicTri) : S.ev && S.percorso==='hotel' ? hotelCols*LISTINO.wallbox.publicTri : 0;
+  const docs = S.percorso==='produttore'?22000:S.percorso==='casa'?2800:6500;
+  // ISEE e Reddito Energetico Nazionale 2026
+  const iseeApplica=(S.percorso==='casa');
+  const renApplica=iseeApplica && S.isee>0;  // REN: FV gratuito se ISEE idoneo
+  const costFvEff = renApplica ? 0 : costFv;  // esclude costo FV quando REN attivo
+  const investment = (costPdc + costBollitore + costCaldaia + costVolano + costFvEff + costBatt + wallboxCost + docs) * p.capex;
+  const pnrrGrant = pnrrActive ? (costFvEff + costBatt) * p.capex * 0.40 : 0;
+  const effectiveInvestment = investment - pnrrGrant;
+  /* vp96 — beneficio fiscale: 50% IRPEF art.16-bis per residenziali (casa/condo);
+     28% deducibilità IRES (24%) + IRAP (3,9%) art.102 TUIR per non-residenziali (azienda/hotel/complesso);
+     0 per produttore (incentivo GSE già valorizzato separatamente). */
+  const detrazioneRate = (S.percorso==='casa'||S.percorso==='condo') ? .50 : (S.percorso==='produttore') ? .0 : .28;
+  const detrazione = S.toggles.detrazione ? (costFvEff + costBatt + docs) * detrazioneRate : 0;
+  const contoAliq=iseeApplica?(S.isee===2?0.65:S.isee===1?0.55:0.40):0.40;
+  const contoCap=S.percorso==='casa'?(S.isee>=1?9000:6500):45000;
+  /* vp95b — costCaldaia entra nella base CT3.0: la sostituzione caldaia fossile è il titolo
+     di accesso all'incentivo GSE e il suo costo è ammissibile (caldaia condensazione/ibrida).
+     Caso rilevante: intervento con sola caldaia e PdC=0 → CT3.0 sarebbe stato 0 senza fix. */
+  const conto=(S.toggles.conto&&p.thermo)?Math.min((costPdc+costBollitore+costVolano+costCaldaia)*contoAliq,contoCap):0;
+  /* vp97 — sconto in fattura CT: se attivo, Rete 21 anticipa il Conto Termico —
+     il valore CT viene sottratto dall'importo finanziato → rata più bassa.
+     In questo caso il CT non compare come beneficio annuale (è già "consumato"). */
+  const contoSconto = (S.scontoFatturaCT && conto > 0) ? conto : 0;
+  const principalFinanziabile = Math.max(0, effectiveInvestment - contoSconto);
+  /* vp95 — split beneficio: quota FV (degrada) vs quota fissa */
+  // vp110: sottrarre postGasSpend dal risparmio — in ibrido rimane una quota gas, in abbandono è zero
+  const benefitFvAnnual = (Math.max(0, baselineSpend - postElectricSpend - postGasSpend) + rid + cer) * p.benefit;
+  /* vp97 fix: con sconto ON il principal è ridotto di CT, ma il beneficio mensile CT rimane
+     invariato (il valore CT è anticipato da Rete 21 → rata più bassa, non reddito perso). */
+  const benefitFixAnnual = (evSaving + detrazione/10 + conto/2) * p.benefit;
+  const annualBenefit = benefitFvAnnual + benefitFixAnnual;
+  const zeroMonths = S.toggles.rata ? minMonthsForZero(principalFinanziabile, benefitFixAnnual/12, benefitFvAnnual/12, LISTINO.params.tan) : 0;
+  const spl = splitMonths(zeroMonths);
+  el('kpi-consumi').textContent=fmtKWh(totalElectric);
+  el('kpi-termico').textContent=p.thermo?fmtKWh(thermalNeed):fmtKWh(exportEnergy);
+  el('kpi-prod').textContent=fmtKWh(prod);
+  if(el('mini-prod-fv')) el('mini-prod-fv').textContent=fmtKWh(prod);
+  el('kpi-auto').textContent=num(autoPct*100,0)+'%';
+  if(el('mini-fabbisogno')) el('mini-fabbisogno').textContent=p.thermo?fmtKWh(thermalNeed):'—';
+  el('mini-pdc').textContent=p.thermo ? num(pdcKw,0)+' kW' : num(fv,0)+' kWp';
+  if(el('mini-caldaia-row')) el('mini-caldaia-row').style.display=p.thermo?'flex':'none';
+  if(el('mini-caldaia')) el('mini-caldaia').textContent=p.thermo?(S.caldaiaConfirmata?(caldaiaKw>0?num(caldaiaKw,0)+' kWt':'—'):'Suggerita — da confermare'):'—';
+  updateCaldaiaCTNote();
+  // vp97 — mostra toggle sconto in fattura solo su percorsi con termico e CT attivo
+  const scontoRow = document.getElementById('sconto-ct-toggle-row');
+  const scontoPreview = document.getElementById('sconto-ct-val-preview');
+  if(scontoRow) scontoRow.style.display = (p.thermo && S.toggles.conto) ? '' : 'none';
+  if(scontoPreview) scontoPreview.textContent = (p.thermo && S.toggles.conto && conto > 0) ? Math.round(conto/Math.max(1,effectiveInvestment)*100)+'% del preventivo' : '—';
+  // Sincronizza checkbox con stato S
+  const scontoCb = document.getElementById('sconto-fattura-ct-cb');
+  if(scontoCb) scontoCb.checked = S.scontoFatturaCT;
+  const scontoNota = document.getElementById('sconto-ct-nota');
+  if(scontoNota) scontoNota.style.display = S.scontoFatturaCT ? 'block' : 'none';
+  el('mini-bollitore').textContent=p.thermo ? num(bollitore,0)+' litri' : 'Produzione + condivisione';
+  if(el('mini-volano')) el('mini-volano').textContent=p.thermo ? num(volano,0)+' litri' : '—';
+  el('mini-shared').textContent=S.toggles.cer ? fmtKWh(sharedEnergy) : 'Non attiva';
+  if(el('mini-cer-value')) el('mini-cer-value').textContent=S.toggles.cer?fmtKWh(sharedEnergy)+' condivisi · 20 anni':'Non attiva';
+  if(el('mini-pnrr')) el('mini-pnrr').textContent=pnrrActive?'attivo · ~40% del costo impianto FV':'Non attivo';
+  if(el('fv-proj-tot')) el('fv-proj-tot').textContent=num(prod/1000,1);
+  if(el('fv-proj-auto')) el('fv-proj-auto').textContent=num(selfUse/1000,1);
+  if(el('fv-proj-cer')) el('fv-proj-cer').textContent=S.toggles.cer?num(sharedEnergy/1000,1):'—';
+  if(el('fv-proj-rid')) el('fv-proj-rid').textContent=num(exportEnergy/1000,1);
+  el('mini-ev-save').textContent=S.ev ? fmtKWh(['azienda','hotel'].includes(S.percorso) ? mobilityKwh : evCons) : 'Non attiva';
+  const detChipLabel=(S.percorso==='casa'||S.percorso==='condo')?'Bonus Ristrutturazioni 50%':'Ded. IRES+IRAP sul FV';
+  const chips=[['Percorso: '+p.name,true],[detChipLabel,S.toggles.detrazione&&S.percorso!=='produttore'],['Conto Termico 3.0',S.toggles.conto && p.thermo],['RID',S.toggles.rid],['CER / GAC',S.toggles.cer],['PNRR 40% — scad. 30/06/2026',false],['Rata attiva',S.toggles.rata],['Mobilità',S.ev],[(S.percorso==='produttore'?'Sito ottimizzato':'Isolamento'),S.cappotto],['ISEE < 15.000 € + REN',S.isee===1&&iseeApplica],['ISEE < 30.000 € + 4 figli + REN',S.isee===2&&iseeApplica]];
+  if(p.thermo) chips.push(['Zona '+clima.zone,true],['Risc. '+num(heatingNeed/1000,1)+' MWh',true],['Raffr. '+num(coolingNeed/1000,1)+' MWh',true],['Fabbisogno '+(adjust===0?'auto':(adjust>0?'+':'')+num(adjust,0)+'%'),true],['Termico '+(differs?'variato':'proposto'),true]);
+  if(S.percorso==='azienda') chips.push(['Card private: '+azPrivate,S.ev&&azPrivate>0],['Pubbliche: '+azPublic,S.ev&&azPublic>0],['Mezzi elettrici: '+azFleet,S.ev&&azFleet>0]);
+  if(S.percorso==='hotel') chips.push(['Colonnine ospiti: '+hotelCols,S.ev&&hotelCols>0]);
+  if(p.thermo) chips.push(['Caldaia: '+(S.caldaiaConfirmata?num(caldaiaKw,0)+' kWt':'suggerita'),S.caldaiaConfirmata&&caldaiaKw>0]);
+  chips.push(['♻️ Sconto CT in fattura',S.scontoFatturaCT&&contoSconto>0]);
+  el('dash-chips').innerHTML=chips.map(([label,on])=>'<span class="chip '+(on?'':'off')+'">'+label+'</span>').join('');
+  let badge='SALDO MENSILE 0€<small>finché la rata è attiva</small>';
+  let msg='', comClass='ok', comMsg='';
+  if(!S.toggles.rata){
+    scheduleDashCounter(0,'Nessuna rata attiva');
+    badge='RATA DISATTIVATA<small>nessuna uscita mensile</small>';
+    msg='Hai disattivato la rata: resta visibile il comportamento energetico e incentivante del percorso selezionato.';
+    comMsg='Senza rata attiva il focus resta sulla sostenibilità tecnica e sulle leve attive.'; if(el('dash-mid')) el('dash-mid').textContent='Senza rata';
+  }else if(zeroMonths!==null){
+    scheduleDashCounter(zeroMonths,spl.years+' anni e '+spl.months+' mesi senza aggravio mensile netto');
+    msg='Durante il periodo di rata, i benefici economici stimati compensano l\'uscita mensile dell\'impianto: il saldo netto cliente resta pari a 0€. Terminata la rata, i benefici continuano e diventano saldo mensile positivo per circa 20 anni.';
+    if(S.percorso==='azienda') comMsg='Messaggio chiave: fotovoltaico, accumulo, incentivi, componente termica e mobilità elettrica aziendale lavorano insieme. Colonnine con card, colonnine pubbliche e automezzi elettrici contribuiscono ad avvicinare la rata a 0€.';
+    else if(S.percorso==='hotel') comMsg='Messaggio chiave: per Hotel e Hospitality la componente termica, l’ACS e le colonnine ospiti trasformano energia e servizi in benefici che aiutano il punto di pareggio.';
+    else if(S.percorso==='condo') comMsg='Messaggio chiave: pompa di calore, caldaia di backup, bollitore, volano, FV, accumulo e GAC condominiale lavorano insieme. Il GAC non richiede nuova persona giuridica: delibera assembleare e amministratore come referente GSE.'+(pnrrActive?' Con PNRR 40% attivo il contributo a fondo perduto accelera fortemente il pareggio.':' Attivare PNRR 40% se il comune ha meno di 50.000 abitanti: copre ~98% dei comuni italiani.');
+    else if(S.percorso==='casa') comMsg='Messaggio chiave: nel percorso Casa la proposta usa pompa di calore, bollitore, volano, FV e accumulo.'+(renApplica?' <strong>Reddito Energetico Nazionale 2026 attivo:</strong> il FV è gratuito — il costo è escluso dalla rata.':'')+(pnrrActive?' Con PNRR 40% attivo l\'investimento netto è ridotto (~40% FV+batterie).':' Attivare PNRR 40% se il comune ha meno di 50.000 abitanti.')+(S.isee===2?' CT3.0 al 65% (ISEE < 30.000 € con 4+ figli).':S.isee===1?' CT3.0 al 55% (ISEE < 15.000 €).':'')+' La quota CER/GAC è inclusa nel calcolo.';
+    else comMsg='Messaggio chiave: con incentivi, RID e CER/GAC attivi, la rata può essere sostenuta dai benefici del sistema fino all’uscita cliente 0€.';
+    if(el('dash-mid')) el('dash-mid').textContent='Pareggio a '+spl.years+' anni e '+spl.months+' mesi';
+  }else{
+    scheduleDashCounter(null,'Pareggio non raggiunto entro 240 mesi');
+    badge='PAREGGIO NON RAGGIUNTO<small>entro 240 mesi</small>';
+    msg='Con questa combinazione di leve il punto di pareggio non si raggiunge entro il limite simulato.';
+    comClass='warn'; comMsg='Per avvicinare la rata a 0€ conviene aumentare FV, accumulo o riattivare le leve incentivanti.'; if(el('dash-mid')) el('dash-mid').textContent='Oltre 240 mesi';
+  }
+  el('dash-badge').innerHTML=badge; el('dash-message').textContent=msg;
+  // vp101 — promo message cruscotto
+  var _prom=el('dash-promo-msg');
+  if(_prom){
+    var _compParts=[];
+    _compParts.push('Fotovoltaico '+num(fv,1).replace(',0','')+' kWp');
+    if(batt>0) _compParts.push('Accumulo '+num(batt,0)+' kWh');
+    if(p.thermo && pdcKw>0) _compParts.push('Pompa di calore '+num(pdcKw,0)+' kW');
+    if(p.thermo && S.caldaiaConfirmata && caldaiaKw>0) _compParts.push('Nuova caldaia a condensazione '+num(caldaiaKw,0)+' kWt');
+    if(p.thermo && bollitore>0) _compParts.push('Bollitore ACS '+num(bollitore,0)+' L');
+    if(p.thermo && volano>0) _compParts.push('Volano termico '+num(volano,0)+' L');
+    if(S.ev && S.percorso==='azienda') _compParts.push('Colonnine ricarica aziendale');
+    if(S.ev && S.percorso==='hotel') _compParts.push('Colonnine ricarica ospiti');
+    var _cl=_compParts.map(function(c){return '<span class="dpm-item">'+c+'</span>';}).join('');
+    _prom.className='dash-promo-msg'+(!S.toggles.rata?' state-off':zeroMonths===null?' state-warn':'');
+    if(!S.toggles.rata){
+      _prom.innerHTML='<span class="dpm-intro">Rata disattivata — stai esplorando il comportamento energetico del percorso.</span><div class="dpm-list">'+_cl+'</div>';
+    } else if(zeroMonths===null){
+      _prom.innerHTML='<span class="dpm-intro">Con questa configurazione il pareggio supera i 20 anni. Aumenta il fotovoltaico, l’accumulo o attiva più leve per avvicinarti.</span><div class="dpm-list">'+_cl+'</div>';
+    } else {
+      var _yr=spl.years>0?'<strong>'+spl.years+(spl.years===1?' anno':' anni')+'</strong>'+(spl.months>0?' e ':''):'';
+      var _mo=spl.months>0?'<strong>'+spl.months+(spl.months===1?' mese':' mesi')+'</strong>':'';
+      var _hasThermo=p.thermo;
+    var _introTxt;
+    if(_hasThermo && !S.caldaiaConfirmata){
+      _introTxt='Per '+_yr+_mo+' paghi una rata a <strong>0€</strong> perché i ricavi pareggiano i costi. Rete 21 <strong>elimina la caldaia fossile e installa solo la pompa di calore</strong> — zero combustibile fossile — e:';
+    } else if(_hasThermo && S.caldaiaConfirmata){
+      _introTxt='Per '+_yr+_mo+' paghi una rata a <strong>0€</strong> perché i ricavi pareggiano i costi. Rete 21 installa pompa di calore + nuova caldaia a condensazione (sistema ibrido) e:';
+    } else {
+      _introTxt='Per '+_yr+_mo+' paghi una rata a <strong>0€</strong> perché i ricavi pareggiano i costi. Rete 21 installa per te:';
+    }
+    _prom.innerHTML='<span class="dpm-intro">'+_introTxt+'</span><div class="dpm-list">'+_cl+'</div>';
+    }
+  }
+  var _ctitle=el('rata-coperta-in');
+  if(_ctitle) _ctitle.textContent=!S.toggles.rata?'SENZA RATA':zeroMonths===null?'PAREGGIO > 20 ANNI':'RATA 0€';
+  if(el('dash-mini-timeline')){
+    if(!S.toggles.rata||zeroMonths===null){
+      el('dash-mini-timeline').style.display='none';
+    }else{
+      el('dash-mini-timeline').style.display='grid';
+      var _lbl=(spl.years>0?spl.years+' anni e ':'')+spl.months+' mesi';
+      el('dmt-range-1').textContent='0 → '+_lbl;
+      el('dmt-range-2').textContent='dopo '+_lbl+' → circa 20 anni';
+    }
+  } el('commercial-msg').className='message '+comClass; el('commercial-msg').textContent=comMsg;
+  const fill = !S.toggles.rata ? 0 : zeroMonths===null ? 100 : Math.max(0,Math.min(100,(zeroMonths/240)*100));
+  if(el('dash-fill')) el('dash-fill').style.width=fill+'%'; if(el('dash-marker')) el('dash-marker').style.left=fill+'%';
+  S.lastReport={
+    'Percorso':p.name,
+    'Cliente / riferimento':el('client-name')?.value||'Cliente',
+    'Comune':clima.city,
+    'Zona climatica':'Zona '+clima.zone,
+    'Superficie':num(mq,0)+' m²',
+    'Unità / persone':num(units,0)+' '+p.unit,
+    'Fabbisogno edificio':p.thermo?fmtKWh(thermalNeed):'non prioritario',
+    'Riscaldamento stimato':p.thermo?fmtKWh(heatingNeed):'—',
+    'Raffrescamento stimato':p.thermo?fmtKWh(coolingNeed):'—',
+    'Pompa di calore proposta':p.thermo?num(pdcKw,0)+' kWt':'—',
+    'Caldaia nuova / backup':p.thermo?(S.caldaiaConfirmata?num(caldaiaKw,0)+' kWt (confermata)':'suggerita — da confermare'):'—',
+    'Bollitore ACS':p.thermo?num(bollitore,0)+' litri':'—',
+    'Volano termico':p.thermo?num(volano,0)+' litri':'—',
+    'Fotovoltaico':num(fv,1).replace(',0','')+' kWp',
+    'Accumulo elettrico':num(batt,0)+' kWh',
+    'Produzione FV stimata':fmtKWh(prod),
+    'Autoconsumo stimato':num(autoPct*100,0)+'%',
+    'ISEE':iseeApplica?(S.isee===2?'ISEE < 30.000 € con 4+ figli — CT3.0 65% — REN attivo':S.isee===1?'ISEE < 15.000 € — CT3.0 55% — REN attivo':'Non si applica — CT3.0 40%'):'—',
+    'PNRR 40% fondo perduto':pnrrActive?fmtEuro(pnrrGrant)+'(comune < 50.000 ab.)':'non attivo',
+    'Tariffa CER effettiva':S.toggles.cer?Math.round(cerTariff)+' €/MWh ('+20+' anni)':'—',
+    'Produzione FV':num(prod/1000,1)+' MWh/anno',
+    'Autoconsumo FV':num(selfUse/1000,1)+' MWh/anno',
+    'Energia condivisa GAC/CER':S.toggles.cer?num(sharedEnergy/1000,1)+' MWh/anno':'non attiva',
+    'Energia immessa rete (RID)':num(exportEnergy/1000,1)+' MWh/anno',
+    'Contributo GAC/CER stimato':S.toggles.cer?fmtEuro(cer)+'/anno':'non attivo',
+    'Energia condivisibile':S.toggles.cer?fmtKWh(sharedEnergy):'non attiva',
+    'Mobilità / ricarica':S.ev?el('mini-ev-save')?.textContent||'attiva':'non attiva',
+    'Sconto CT in fattura':S.scontoFatturaCT&&contoSconto>0?'attivo — CT '+fmtEuro(contoSconto)+' anticipato da Rete 21':'non attivo',
+    'Pareggio rata':S.toggles.rata?(zeroMonths===null?'oltre 240 mesi':spl.years+' anni e '+spl.months+' mesi'):'rata disattivata',
+    'Codice corrente':buildReportCode()
+  };
+  updateReportPreview();
+}
+// vp76 — fisarmonica sezioni numerate stile aree_idonee: apertura robusta
+const ACCORDION_LABELS=[
+  {text:'Compilabile',type:'compilabile'},
+  {text:'Proposto variabile',type:'proposto'},
+  {text:'Proposto variabile',type:'proposto'},
+  {text:'Leve variabili',type:'proposto'},
+  {text:'Non variabile',type:'nonvariabile'}
+];
+function getAccordionSections(){
+  return Array.from(document.querySelectorAll('main.stack > section.card')).slice(0,5);
+}
+function setupAccordionSections(){
+  const sections=getAccordionSections();
+  sections.forEach((section,index)=>{
+    const metaCfg=ACCORDION_LABELS[index]||{text:'Sezione',type:'nonvariabile'};
+    section.classList.add('accordion-section','type-'+metaCfg.type);
+    section.dataset.accordionIndex=String(index);
+    const head=section.querySelector('.card-head');
+    if(!head) return;
+    head.setAttribute('role','button');
+    head.setAttribute('tabindex','0');
+    head.setAttribute('aria-controls','accordion-body-'+index);
+    const body=section.querySelector('.card-body');
+    if(body) body.id='accordion-body-'+index;
+    let right=head.querySelector('.accordion-right');
+    if(!right){
+      // fallback: crea il pill se non presente nell'HTML statico (no CRUSCOTTO nell'header)
+      right=document.createElement('div');
+      right.className='accordion-right';
+      right.innerHTML='<span class="accordion-pill"><span class="accordion-meta type-'+metaCfg.type+'">'+metaCfg.text+'</span><span class="accordion-arrow">▼</span></span>';
+      head.appendChild(right);
+    }
+    head.onclick=function(ev){
+      if(ev.target.closest('button,a,input,select,textarea')) return;
+      toggleAccordionSection(index);
+    };
+    head.onkeydown=function(ev){
+      if(ev.key==='Enter' || ev.key===' '){
+        ev.preventDefault();
+        toggleAccordionSection(index);
+      }
+    };
+  });
+  sections.forEach((section,index)=>{
+    section.classList.add('collapsed');
+    const head=section.querySelector('.card-head');
+    if(head) head.setAttribute('aria-expanded','false');
+  });
+}
+function toggleAccordionSection(index){
+  const sections=getAccordionSections();
+  const target=sections[index];
+  if(!target) return;
+  target.classList.add('accordion-section');
+  const shouldOpen=target.classList.contains('collapsed');
+  target.classList.toggle('collapsed',!shouldOpen);
+  const head=target.querySelector('.card-head');
+  if(head) head.setAttribute('aria-expanded',shouldOpen?'true':'false');
+  const body=target.querySelector('.card-body');
+  if(body) body.style.display=shouldOpen?'':'none';
+  const secBtn=document.getElementById('secbtn-'+index);
+  if(secBtn) secBtn.textContent=shouldOpen?'▲ Comprimi':'▼ Espandi';
+}
+function expandAllSections(){
+  getAccordionSections().forEach(section=>{
+    section.classList.add('accordion-section');
+    section.classList.remove('collapsed');
+    const head=section.querySelector('.card-head');
+    if(head) head.setAttribute('aria-expanded','true');
+    const body=section.querySelector('.card-body');
+    if(body) body.style.display='';
+    const _idx=section.dataset.accordionIndex;
+    if(_idx!==undefined){const sb=document.getElementById('secbtn-'+_idx);if(sb)sb.textContent='▲ Comprimi';}
+  });
+}
+function collapseAllSections(){
+  getAccordionSections().forEach(section=>{
+    section.classList.add('accordion-section');
+    section.classList.add('collapsed');
+    const head=section.querySelector('.card-head');
+    if(head) head.setAttribute('aria-expanded','false');
+    const body=section.querySelector('.card-body');
+    if(body) body.style.display='none';
+    const _idx=section.dataset.accordionIndex;
+    if(_idx!==undefined){const sb=document.getElementById('secbtn-'+_idx);if(sb)sb.textContent='▼ Espandi';}
+  });
+}
+window.addEventListener('beforeprint', expandAllSections);
+// ===== MOBILE_REVEAL — defer split-flap counter su mobile fino al tap CRUSCOTTO =====
+const MOBILE_REVEAL={pending:false,totalMonths:null,totalText:''};
+function isMobileViewport(){return window.innerWidth<=1100;}
+// Salva l'originale scheduleDashCounter e lo rinomina
+const _scheduleCounterCore=(function(){
+  // closure per catturare la versione originale
+  return function(totalMonths,totalText){
+    const numericTarget=(typeof totalMonths==='number' && isFinite(totalMonths)) ? totalMonths : null;
+    const previousTarget=DASH_COUNTER.lastTarget;
+    const previousDisplay=(typeof DASH_COUNTER.displayMonths==='number' && isFinite(DASH_COUNTER.displayMonths)) ? DASH_COUNTER.displayMonths : numericTarget;
+    let trend='';
+    if(numericTarget!==null && previousTarget!==null){
+      if(numericTarget<previousTarget) trend='down';
+      else if(numericTarget>previousTarget) trend='up';
+    }
+    DASH_COUNTER.lastTarget=numericTarget;
+    const wrap=el('dash-counter-wrap');
+    const total=el('dash-total-months');
+    if(wrap){wrap.classList.remove('trend-down','trend-up'); if(trend) wrap.classList.add(trend==='down'?'trend-down':'trend-up');}
+    if(total){total.classList.remove('down','up','mobile-pending'); total.classList.add('pending'); total.textContent='Aggiornamento in corso...';}
+    if(DASH_COUNTER.timer) clearTimeout(DASH_COUNTER.timer);
+    if(DASH_COUNTER.raf) cancelAnimationFrame(DASH_COUNTER.raf);
+    DASH_COUNTER.timer=setTimeout(()=>{
+      if(numericTarget===null){
+        renderDashCounterFromMonths(totalMonths,totalText,trend);
+        return;
+      }
+      const start=(typeof previousDisplay==='number' && isFinite(previousDisplay)) ? previousDisplay : numericTarget;
+      const end=numericTarget;
+      const duration=1170; /* +30% rispetto ai 900ms originali */
+      const startTime=performance.now();
+      const ease=t=>1-Math.pow(1-t,3);
+      const step=(now)=>{
+        const t=Math.min(1,(now-startTime)/duration);
+        const v=Math.round(start+(end-start)*ease(t));
+        renderDashCounterFromMonths(v,totalText,trend);
+        if(t<1) DASH_COUNTER.raf=requestAnimationFrame(step);
+        else{
+          renderDashCounterFromMonths(end,totalText,trend);
+          if(wrap) setTimeout(()=>wrap.classList.remove('trend-down','trend-up'),1560);
+        }
+      };
+      DASH_COUNTER.raf=requestAnimationFrame(step);
+    },0);
+  };
+})();
+// vp99 — Aggiornamento automatico cruscotto dopo 1 s dall'ultima azione
+var _dashAutoTimer=null;
+function scheduleDashCounter(totalMonths,totalText){
+  var total=el('dash-total-months');
+  if(total){
+    total.classList.remove('pending','mobile-pending','down','up');
+    total.classList.add('pending');
+    total.textContent='Aggiornamento…';
+  }
+  // Segnale visivo: fondino ambra mentre il timer è attivo
+  var wrap=el('dash-counter-wrap');
+  if(wrap) wrap.classList.add('counter-pending');
+  clearTimeout(_dashAutoTimer);
+  _dashAutoTimer=setTimeout(function(){
+    if(wrap) wrap.classList.remove('counter-pending');
+    _scheduleCounterCore(totalMonths,totalText);
+  },1000);
+}
+// Chiamata dal bottone CRUSCOTTO su mobile: scroll al cruscotto + reveal dopo 1s
+// Sezione di provenienza per la pill INDIETRO
+let _dashOriginSection = null;
+let _dashOriginEl = null; // elemento specifico (campo) da cui si è partiti
+
+function scrollToDashAndReveal(originEl){
+  if(originEl){
+    // _dashOriginEl = elemento più specifico: il campo (.field-accent/.thermal-card)
+    // oppure la section se il click viene dall'header accordion
+    _dashOriginEl = originEl.closest('.field-accent, .thermal-card') || null;
+    // _dashOriginSection = section.card contenitore (per espansione accordion)
+    _dashOriginSection = originEl.closest('section.card') || _dashOriginEl || originEl;
+  }
+  // Etichetta del tasto INDIETRO: label del campo se disponibile, altrimenti h2 della section
+  const backPill = document.getElementById('dash-back-pill');
+  if(backPill){
+    if(_dashOriginEl || _dashOriginSection){
+      const fieldLabel = _dashOriginEl ? _dashOriginEl.querySelector('label') : null;
+      const secH2 = _dashOriginSection ? _dashOriginSection.querySelector('h2') : null;
+      let lbl = fieldLabel
+        ? fieldLabel.textContent.trim().replace(/\s*\*/g,'').trim()
+        : (secH2 ? secH2.textContent.trim() : 'INDIETRO');
+      // Tronca se troppo lungo
+      if(lbl.length > 32) lbl = lbl.substring(0,30) + '…';
+      backPill.textContent = '↩ ' + lbl;
+      backPill.style.display = 'block';
+    } else {
+      backPill.style.display = 'none';
+    }
+  }
+  const target=document.getElementById('rata-coperta-in');
+  if(target) target.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(function(){
+    if(!MOBILE_REVEAL.pending) return;
+    MOBILE_REVEAL.pending=false;
+    const tm=MOBILE_REVEAL.totalMonths, tt=MOBILE_REVEAL.totalText;
+    MOBILE_REVEAL.totalMonths=null; MOBILE_REVEAL.totalText='';
+    _scheduleCounterCore(tm,tt);
+  },1500);
+}
+
+function scrollBackToOrigin(){
+  if(!_dashOriginEl && !_dashOriginSection) return;
+  const scrollTarget = _dashOriginEl || _dashOriginSection;
+  // Se la section accordion è collassata, espandila prima dello scroll
+  const sec = scrollTarget.closest('section.card');
+  const isCollapsed = sec && sec.classList.contains('collapsed');
+  if(isCollapsed){
+    sec.classList.remove('collapsed');
+    const head = sec.querySelector('.card-head');
+    if(head) head.setAttribute('aria-expanded','true');
+  }
+  // Scroll al campo specifico (con ritardo se era collassata)
+  setTimeout(function(){
+    scrollTarget.scrollIntoView({behavior:'smooth', block:'center'});
+  }, isCollapsed ? 220 : 0);
+  const backPill = document.getElementById('dash-back-pill');
+  if(backPill) backPill.style.display = 'none';
+}
+// ===== CRUSCOTTO pill nei singoli campi compilabili / proposti =====
+function injectFieldCruscottoPills(){
+  function makeBtn(){
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='cruscotto-pill-field';
+    b.textContent='CRUSCOTTO';
+    b.onclick=function(ev){ev.stopPropagation();scrollToDashAndReveal(ev.currentTarget);};
+    return b;
+  }
+  document.querySelectorAll('.field-accent.required-field, .field-accent.proposed-field').forEach(function(field){
+    const topline=field.querySelector(':scope > .field-topline');
+    if(!topline||topline.querySelector('.cruscotto-pill-field')) return;
+    const badge=topline.querySelector('.field-badge');
+    const grp=document.createElement('div');
+    grp.className='topline-right-group';
+    grp.appendChild(makeBtn());
+    if(badge){topline.removeChild(badge);grp.appendChild(badge);}
+    topline.appendChild(grp);
+  });
+  document.querySelectorAll('.thermal-card.proposed-field').forEach(function(card){
+    if(card.querySelector('.cruscotto-pill-field')) return;
+    const strong=card.querySelector(':scope > strong');
+    if(!strong) return;
+    const row=document.createElement('div');
+    row.className='thermal-card-toprow';
+    card.insertBefore(row,strong);
+    row.appendChild(strong);
+    const grp=document.createElement('div');
+    grp.className='topline-right-group';
+    grp.appendChild(makeBtn());
+    const badge=document.createElement('span');
+    badge.className='field-badge proposed';
+    badge.textContent='Proposto';
+    grp.appendChild(badge);
+    row.appendChild(grp);
+  });
+}
+// vp99 — sposta il counter tra mobile (cruscotto-top) e desktop (sidebar)
+function adaptCounterLayout(){
+  var mobile = window.innerWidth <= 1099;
+  var moveable = document.getElementById('dash-moveable');
+  var mobileSlot = document.querySelector('#cruscotto-top .cruscotto-bar-inner');
+  var desktopSlot = document.getElementById('dash-desktop-slot');
+  if(!moveable) return;
+  var target = mobile ? mobileSlot : desktopSlot;
+  if(target && moveable.parentElement !== target){
+    target.appendChild(moveable);
+  }
+}
+var _adaptTimer;
+window.addEventListener('resize',function(){
+  clearTimeout(_adaptTimer);
+  _adaptTimer=setTimeout(adaptCounterLayout,200);
+});
+
+window.addEventListener('DOMContentLoaded',()=>{
+  adaptCounterLayout();
+  selectPath('casa');
+  renderReportList();
+  updateReportPreview();
+  setupAccordionSections();
+  initSFPanels();
+  // injectFieldCruscottoPills(); // vp99: rimosso — aggiornamento automatico
+  const initSecs=getAccordionSections();
+  if(initSecs[0]){initSecs[0].classList.remove('collapsed');const h=initSecs[0].querySelector('.card-head');if(h)h.setAttribute('aria-expanded','true');}
+  document.querySelectorAll('.path-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const g=document.getElementById('path-grid');
+      if(g){g.classList.add('path-fading');setTimeout(()=>{g.classList.add('path-chosen');g.classList.remove('path-fading');},200);}
+      const b=document.getElementById('btn-change-path');
+      if(b) b.style.display='';
+      const secs=getAccordionSections();
+      if(secs[0]){secs[0].classList.remove('collapsed');const h=secs[0].querySelector('.card-head');if(h)h.setAttribute('aria-expanded','true');setTimeout(()=>secs[0].scrollIntoView({behavior:'smooth',block:'start'}),230);}
+    });
+  });
+});
+function showInfo(title,body){
+  var ov=document.getElementById('info-overlay');
+  var pop=document.getElementById('info-popover');
+  var tEl=document.getElementById('info-pop-title');
+  var bEl=document.getElementById('info-pop-body');
+  if(tEl) tEl.textContent=title||'';
+  if(bEl) bEl.innerHTML=body||'';
+  if(ov) ov.classList.add('visible');
+  if(pop) pop.classList.add('visible');
+}
+function closeInfo(){
+  var ov=document.getElementById('info-overlay');
+  var pop=document.getElementById('info-popover');
+  if(ov) ov.classList.remove('visible');
+  if(pop) pop.classList.remove('visible');
+}
+
+</script>
+</div><!-- /#page-scroll -->
+</body>
+</html>

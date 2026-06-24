@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Configuratore Rete 21 — VP110</title>
+<title>Configuratore Rete 21 — VP111</title>
 <meta name="description" content="Configuratore semplificato con stima consumi, proposta impianto e cruscotto del punto di pareggio della rata.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -512,7 +512,7 @@ body{font-family:'Montserrat',Helvetica,Arial,Lucida,sans-serif;color:var(--r21-
 .field-legend{display:none!important}
 @media(max-width:900px){.area-type-legend{grid-template-columns:1fr}}
 @media print{.area-type-legend{break-inside:avoid}}
-/* ===== v17 — reset proposte, ricerca Comune assistita, report parallelo ===== */
+/* ===== v17 — reset proposte, ricerca Comune assistita ===== */
 .field.autocomplete-field{position:relative}
 .city-suggestions{display:none;position:absolute;left:0;right:0;top:100%;z-index:80;margin-top:4px;background:#fff;border:1px solid var(--grigio-bordo);border-radius:12px;box-shadow:0 10px 26px rgba(65,71,69,.16);max-height:240px;overflow:auto;padding:6px}
 .city-suggestions.visible{display:block}
@@ -740,8 +740,7 @@ body{font-family:'Montserrat',Helvetica,Arial,Lucida,sans-serif;color:var(--r21-
   .r21-grid{ display:none }
   .r21-hero p{ display:none }
 
-  /* Report parallelo: nasconde dal dashboard (troppo piccolo) */
-  .dash-card:has(#report-list){ display:none }
+  /* vp111: card archivio rimossa */
 
   /* Accordion: nasconde i pulsanti espandi/comprimi globali */
   .accordion-controls{ display:none }
@@ -980,7 +979,7 @@ body{font-family:'Montserrat',Helvetica,Arial,Lucida,sans-serif;color:var(--r21-
 </div>
 
 <div id="cruscotto-top">
-<div class="topbar"><strong>RETE 21 · Configuratore semplificato <b class="ver-tag" style="font-weight:700;opacity:.75;font-size:12px;margin-left:4px">vp110</b></strong><span>Stima orientativa del punto di pareggio della rata</span></div>
+<div class="topbar"><strong>RETE 21 · Configuratore semplificato <b class="ver-tag" style="font-weight:700;opacity:.75;font-size:12px;margin-left:4px">vp111</b></strong><span>Stima orientativa del punto di pareggio della rata</span></div>
 <div class="cruscotto-bar">
   <div class="cruscotto-bar-inner">
     <div class="cruscotto-bar-label">Il cruscotto calcola per quanti anni la tua rata è neutra: Rata 0€. Poi guadagni</div>
@@ -1075,20 +1074,17 @@ body{font-family:'Montserrat',Helvetica,Arial,Lucida,sans-serif;color:var(--r21-
               <div class="hint" id="mq-hint">Superficie indicativa della casa riscaldata.</div>
             </div>
             <div class="field autocomplete-field field-accent required-field">
-              <div class="field-topline"><label for="city-input">Città / Comune di installazione <span class="required-star">*</span> <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Città / Comune','La città genera la zona climatica e modula il fabbisogno in riscaldamento e raffrescamento. Riscaldamento medio-alto, raffrescamento moderato. Il calcolo modula separatamente riscaldamento e raffrescamento. Il codice stampa sarà composto da nome + data + ora.')" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
+              <div class="field-topline"><label for="city-input">Città / Comune di installazione <span class="required-star">*</span> <button type="button" class="info-btn" onclick="event.stopPropagation();showCityInfo()" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
               <input class="text-input" id="city-input" list="city-list" value="Treviso" placeholder="es. Treviso" autocomplete="off" oninput="handleCityInput()" onfocus="showCitySuggestions()" onblur="hideCitySuggestionsSoon()">
               <datalist id="city-list">
                 <option value="Treviso"><option value="Venezia"><option value="Padova"><option value="Vicenza"><option value="Verona"><option value="Belluno"><option value="Rovigo"><option value="Milano"><option value="Torino"><option value="Bologna"><option value="Firenze"><option value="Roma"><option value="Napoli"><option value="Bari"><option value="Palermo"><option value="Cagliari"><option value="Aosta"><option value="Bolzano"><option value="Trento"><option value="Genova"><option value="Trieste"><option value="Udine"><option value="Pordenone"><option value="Ancona"><option value="Perugia"><option value="Pescara"><option value="L'Aquila"><option value="Campobasso"><option value="Potenza"><option value="Catanzaro"><option value="Reggio Calabria">
               </datalist>
               <div id="city-suggestions" class="city-suggestions"></div>
-              <div class="climate-card readonly-field" id="climate-card">
+              <div class="climate-card readonly-field" id="climate-card" style="display:none">
                 <div class="climate-badge" id="climate-zone">E</div>
                 <div><strong id="climate-title">Zona climatica E — Treviso</strong><span id="climate-note">Riscaldamento medio-alto, raffrescamento moderato. La proposta tecnica viene modulata sulle temperature annuali del territorio.</span></div>
               </div>
-              <div class="client-input-row optional-field">
-                <div class="field-topline"><label for="client-name">Nome cliente / riferimento per report</label><span class="field-badge">Facoltativo</span></div>
-                <input class="text-input" id="client-name" value="Cliente" placeholder="es. Rossi Mario" oninput="updateReportPreview()">
-              </div>
+              <input type="hidden" id="client-name" value="Cliente">
             </div>
             <div class="field field-accent required-field">
               <div class="field-topline"><label id="isolamento-label">Cappotto termico <span class="required-star">*</span> <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Cappotto / isolamento','Il cappotto riduce il fabbisogno termico e permette di installare una pompa di calore più piccola con un volano più contenuto: l\'investimento scende. Ma scende anche il risparmio annuo, perché la bolletta del gas da eliminare era già più bassa. I due effetti si compensano e il punto di pareggio resta simile. Il vantaggio del cappotto si vede nell\'impianto più piccolo e nei consumi ridotti, non nei mesi di rata.')" aria-label="Info">i</button></label><span class="field-badge required">Da compilare</span></div>
@@ -1339,47 +1335,43 @@ body{font-family:'Montserrat',Helvetica,Arial,Lucida,sans-serif;color:var(--r21-
           </div>
         </div>
       </section>
-      <section class="r21-section" id="perche-rete21">
-        <div class="r21-hero">
-          <div class="tag">Perché affidarsi a Rete 21</div>
-          <h2>Una rete di imprese tecniche, non un intermediario.</h2>
-          <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Perché affidarsi a Rete 21','Rete 21 mette insieme competenze elettriche, idrauliche, digitali e ingegneristiche per seguire il cliente dall\'analisi iniziale fino all\'impianto, agli incentivi e all\'ingresso in Comunità Energetica.')" aria-label="Info">i</button>
-        </div>
-        <div class="r21-body">
-          <div class="r21-numbers">
-            <div class="r21-num"><div class="big">500</div><div class="label">Addetti <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Addetti','Capacità operativa complessiva indicata per la rete.')" aria-label="Info">i</button></div></div>
-            <div class="r21-num"><div class="big">40</div><div class="label">Addetti ingegneria <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Addetti ingegneria','Presidio tecnico nelle aziende di ingegneria di rete.')" aria-label="Info">i</button></div></div>
-            <div class="r21-num"><div class="big">30</div><div class="label">Imprese socie <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Imprese socie','Aziende specializzate nelle tecnologie d\'impianto.')" aria-label="Info">i</button></div></div>
-            <div class="r21-num"><div class="big">2 MW</div><div class="label">Fotovoltaico <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Fotovoltaico Rete 21','Progettazione e realizzazione tramite partnership Rete TREVI / Enel X.')" aria-label="Info">i</button></div></div>
-          </div>
-          <div class="r21-grid">
-            <div class="r21-card"><h3>Cosa significa per il cliente <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Cosa significa per il cliente','Competenze senza intermediazioni: i clienti condividono risorse e competenze dei soci senza subappalto. Impianto chiavi in mano: dalla Comunità Energetica all\'impianto completo, con progettazione e pratiche. Conto Termico 3.0: Rete 21 segue progettazione e pratiche GSE per gli incentivi. CER / GAC: Rete 21 ti accompagna nello sviluppo e nella crescita delle comunità energetiche rinnovabili. Innovazione applicata: interazione tra imprese, formazione e mondo accademico per soluzioni tecnologiche avanzate.')" aria-label="Info">i</button></h3></div>
-            <div class="r21-card"><h3>Le competenze della rete <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Le competenze della rete','Presidio multidisciplinare: Elettrico (FV, accumulo, allarmi, videosorveglianza, controllo accessi, smart grid) — Idraulica (pompe di calore, caldaie ibride, biomassa, VMC, climatizzazione) — Reti e ingegneria (fibra, ponti radio, 5G, progettazione integrata e sicurezza) — IT (networking, cloud, backup, software, sicurezza informatica e connettività).')" aria-label="Info">i</button></h3></div>
-          </div>
-          <div class="r21-cta-strip" style="flex-direction:row;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-            <span style="font-size:15px;font-weight:900;line-height:1.3">Dal Conto Termico 3.0 alla Comunità Energetica: l’energia che conviene due volte <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Come funziona','Fase 1 — L\'hai fatta in autonomia: ora hai una prima indicazione concreta sulle opportunità per migliorare o riconvertire il tuo impianto energetico. Fase 2 — Confronto con un commerciale Rete 21, online o in presenza. Analizzeremo insieme le numeriche emerse e le prime soluzioni disponibili. Fase 3 — Si passa poi alla progettazione vera e propria: sopralluogo, scelta delle marche e configurazione precisa dell\'impianto.')" aria-label="Info">i</button></span>
-            <a href="https://rete21.it/contatti/" target="_blank" rel="noopener" style="white-space:nowrap;font-size:13px">Richiedi il configuratore completo</a>
-          </div>
-        </div>
-      </section>
     </main>
     <aside class="dashboard">
       <!-- Cruscotto desktop: il counter viene spostato qui da adaptCounterLayout() su schermi >780px -->
-      <section class="dash-card" id="dash-card-counter">
-        <div class="dash-top">
-          <h3>Ti interessa la <strong>RATA a 0€</strong>?</h3>
-        </div>
-        <div class="dash-body" id="dash-desktop-slot">
+      <div id="dash-card-counter" style="margin-bottom:16px">
+        <div id="dash-desktop-slot">
           <!-- dash-moveable inserito da JS -->
         </div>
-      </section>
-      <section class="dash-card"><div class="dash-body"><h4 style="margin:0 0 12px">Leve attive</h4><div class="chips" id="dash-chips"></div></div></section>
+      </div>
+      <div id="dash-chips" style="display:none"></div>
       <section class="dash-card"><div class="dash-body"><h4 style="margin:0 0 12px">Indicatori rapidi</h4><div class="mini-list"><div class="mini-item"><strong>Fabbisogno edificio</strong><span id="mini-fabbisogno">—</span></div><div class="mini-item"><strong>Zona climatica</strong><span id="mini-clima">—</span></div><div class="mini-item"><strong>Fotovoltaico</strong><span id="mini-fv">—</span></div><div class="mini-item" id="mini-batt-row"><strong>Accumulo batterie</strong><span id="mini-batt">—</span></div><div class="mini-item"><strong>Produzione FV stimata</strong><span id="mini-prod-fv">—</span></div><div class="mini-item"><strong id="mini-pdc-label">Pompa di calore proposta</strong><span id="mini-pdc">—</span></div><div class="mini-item" id="mini-caldaia-row"><strong>Caldaia nuova / backup</strong><span id="mini-caldaia">—</span></div><div class="mini-item"><strong id="mini-bollitore-label">Bollitore ACS proposto</strong><span id="mini-bollitore">—</span></div><div class="mini-item"><strong>Volano termico</strong><span id="mini-volano">—</span></div><div class="mini-item"><strong>Energia condivisibile</strong><span id="mini-shared">—</span></div><div class="mini-item"><strong>Contributo GAC / CER</strong><span id="mini-cer-value">—</span></div><div class="mini-item" style="display:none"><strong>Contributo PNRR 40%</strong><span id="mini-pnrr">—</span></div><div class="mini-item"><strong id="mini-ev-label">Energia mobilità</strong><span id="mini-ev-save">—</span></div></div></div></section>
       <div style="display:none"><div class="message ok" id="commercial-msg">—</div></div>
-      <section class="dash-card"><div class="dash-body"><h4 style="margin:0 0 12px">Report parallelo</h4><div class="report-box"><div class="report-code" id="current-report-code">—</div><div class="report-help">Il report viene salvato in questo browser e può essere riaperto dall'archivio qui sotto. Codice: nome + data + ora.</div><div class="report-list" id="report-list"></div></div></div></section>
       <section class="dash-card"><div class="dash-body"><div class="actions"><button class="btn primary" onclick="printWithReport()">Genera report + stampa</button><button class="btn alt" onclick="generateReport(true)">Genera report</button><button class="btn alt" id="dash-reset-proposed" onclick="resetProposedData()" style="display:none">Ripristina dati proposti</button><button class="btn alt" onclick="resetAll()">Reset simulazione</button></div></div></section>
     </aside>
   </div>
+  <section class="r21-section" id="perche-rete21" style="margin-top:22px">
+    <div class="r21-hero">
+      <div class="tag">Perché affidarsi a Rete 21</div>
+      <h2>Una rete di imprese tecniche, non un intermediario.</h2>
+      <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Perché affidarsi a Rete 21','Rete 21 mette insieme competenze elettriche, idrauliche, digitali e ingegneristiche per seguire il cliente dall\'analisi iniziale fino all\'impianto, agli incentivi e all\'ingresso in Comunità Energetica.')" aria-label="Info">i</button>
+    </div>
+    <div class="r21-body">
+      <div class="r21-numbers">
+        <div class="r21-num"><div class="big">500</div><div class="label">Addetti <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Addetti','Capacità operativa complessiva indicata per la rete.')" aria-label="Info">i</button></div></div>
+        <div class="r21-num"><div class="big">40</div><div class="label">Addetti ingegneria <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Addetti ingegneria','Presidio tecnico nelle aziende di ingegneria di rete.')" aria-label="Info">i</button></div></div>
+        <div class="r21-num"><div class="big">30</div><div class="label">Imprese socie <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Imprese socie','Aziende specializzate nelle tecnologie d\'impianto.')" aria-label="Info">i</button></div></div>
+        <div class="r21-num"><div class="big">2 MW</div><div class="label">Fotovoltaico <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Fotovoltaico Rete 21','Progettazione e realizzazione tramite partnership Rete TREVI / Enel X.')" aria-label="Info">i</button></div></div>
+      </div>
+      <div class="r21-grid">
+        <div class="r21-card"><h3>Cosa significa per il cliente <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Cosa significa per il cliente','Competenze senza intermediazioni: i clienti condividono risorse e competenze dei soci senza subappalto. Impianto chiavi in mano: dalla Comunità Energetica all\'impianto completo, con progettazione e pratiche. Conto Termico 3.0: Rete 21 segue progettazione e pratiche GSE per gli incentivi. CER / GAC: Rete 21 ti accompagna nello sviluppo e nella crescita delle comunità energetiche rinnovabili. Innovazione applicata: interazione tra imprese, formazione e mondo accademico per soluzioni tecnologiche avanzate.')" aria-label="Info">i</button></h3></div>
+        <div class="r21-card"><h3>Le competenze della rete <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Le competenze della rete','Presidio multidisciplinare: Elettrico (FV, accumulo, allarmi, videosorveglianza, controllo accessi, smart grid) — Idraulica (pompe di calore, caldaie ibride, biomassa, VMC, climatizzazione) — Reti e ingegneria (fibra, ponti radio, 5G, progettazione integrata e sicurezza) — IT (networking, cloud, backup, software, sicurezza informatica e connettività).')" aria-label="Info">i</button></h3></div>
+      </div>
+      <div class="r21-cta-strip" style="flex-direction:row;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <span style="font-size:15px;font-weight:900;line-height:1.3">Dal Conto Termico 3.0 alla Comunità Energetica: l'energia che conviene due volte <button type="button" class="info-btn" onclick="event.stopPropagation();showInfo('Come funziona','Fase 1 — L\'hai fatta in autonomia: ora hai una prima indicazione concreta sulle opportunità per migliorare o riconvertire il tuo impianto energetico. Fase 2 — Confronto con un commerciale Rete 21, online o in presenza. Analizzeremo insieme le numeriche emerse e le prime soluzioni disponibili. Fase 3 — Si passa poi alla progettazione vera e propria: sopralluogo, scelta delle marche e configurazione precisa dell\'impianto.')" aria-label="Info">i</button></span>
+        <a href="https://rete21.it/contatti/" target="_blank" rel="noopener" style="white-space:nowrap;font-size:13px">Richiedi il configuratore completo</a>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -1969,7 +1961,7 @@ function recalc(){
   if(S.percorso==='hotel') chips.push(['Colonnine ospiti: '+hotelCols,S.ev&&hotelCols>0]);
   if(p.thermo) chips.push(['Caldaia: '+(S.caldaiaConfirmata?num(caldaiaKw,0)+' kWt':'suggerita'),S.caldaiaConfirmata&&caldaiaKw>0]);
   chips.push(['♻️ Sconto CT in fattura',S.scontoFatturaCT&&contoSconto>0]);
-  el('dash-chips').innerHTML=chips.map(([label,on])=>'<span class="chip '+(on?'':'off')+'">'+label+'</span>').join('');
+  if(el('dash-chips')) el('dash-chips').innerHTML=chips.map(([label,on])=>'<span class="chip '+(on?'':'off')+'">'+label+'</span>').join('');
   let badge='SALDO MENSILE 0€<small>finché la rata è attiva</small>';
   let msg='', comClass='ok', comMsg='';
   if(!S.toggles.rata){
@@ -2371,6 +2363,15 @@ function showInfo(title,body){
   if(bEl) bEl.innerHTML=body||'';
   if(ov) ov.classList.add('visible');
   if(pop) pop.classList.add('visible');
+}
+function showCityInfo(){
+  var zone=document.getElementById('climate-zone')?.textContent||'E';
+  var title=document.getElementById('climate-title')?.textContent||('Zona climatica '+zone);
+  var note=document.getElementById('climate-note')?.textContent||'';
+  showInfo('Città / Comune — '+title,
+    '<strong style="font-size:22px;display:block;margin-bottom:6px">'+zone+'</strong>'+
+    note+
+    '<br><br>La città genera la zona climatica e modula il fabbisogno in riscaldamento e raffrescamento. Il calcolo modula separatamente riscaldamento e raffrescamento.');
 }
 function closeInfo(){
   var ov=document.getElementById('info-overlay');
